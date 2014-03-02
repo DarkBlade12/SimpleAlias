@@ -1,81 +1,84 @@
 package com.darkblade12.simplealias.nameable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class NameableList<T extends Nameable> implements Iterable<T> {
-	private List<T> list;
+public class NameableList<T extends Nameable> extends ArrayList<T> {
+	private static final long serialVersionUID = 2132464611329949798L;
+	private boolean ignoreCase;
+
+	public NameableList(boolean ignoreCase) {
+		super();
+		this.ignoreCase = ignoreCase;
+	}
 
 	public NameableList() {
-		list = new ArrayList<T>();
+		this(false);
 	}
 
-	public NameableList(List<T> list) {
-		super();
-		for (T element : list)
-			this.list.add(element);
+	public NameableList(Collection<T> c) {
+		super(c);
+		ignoreCase = false;
 	}
 
-	public void add(T element) {
-		list.add(element);
-	}
-
-	public void remove(T element) {
-		list.remove(element);
+	public NameableList(Collection<T> c, boolean ignoreCase) {
+		super(c);
+		this.ignoreCase = ignoreCase;
 	}
 
 	public void remove(String name) {
-		for (int i = 0; i < list.size(); i++) {
-			T element = list.get(i);
-			if (element.getName().equals(name))
-				list.remove(i);
+		for (int i = 0; i < size(); i++) {
+			String n = get(i).getName();
+			if (ignoreCase ? name.equalsIgnoreCase(n) : name.equals(n))
+				remove(i);
 		}
 	}
 
 	public T get(String name) {
-		for (int i = 0; i < list.size(); i++) {
-			T element = list.get(i);
-			if (element.getName().equals(name))
-				return element;
+		for (int i = 0; i < size(); i++) {
+			T e = get(i);
+			String n = e.getName();
+			if (ignoreCase ? name.equalsIgnoreCase(n) : name.equals(n))
+				return e;
 		}
 		return null;
 	}
 
-	public boolean has(String name) {
+	public boolean contains(String name) {
 		return get(name) != null;
 	}
 
-	public boolean contains(Object o) {
-		return list.contains(o);
+	public boolean ignoreCase() {
+		return this.ignoreCase;
 	}
 
-	public void update(T element) {
-		String name = element.getName();
-		for (int i = 0; i < list.size(); i++)
-			if (list.get(i).getName().equals(name)) {
-				list.set(i, element);
-				return;
-			}
+	public List<String> getNames() {
+		List<String> l = new ArrayList<String>();
+		for (int i = 0; i < size(); i++)
+			l.add(get(i).getName());
+		return l;
 	}
 
-	public int size() {
-		return list.size();
+	public List<String> getNames(Comparator<String> c) {
+		List<String> l = getNames();
+		Collections.sort(l, c);
+		return l;
 	}
 
-	public void clear() {
-		list.clear();
+	public String toString(String seperator) {
+		StringBuilder s = new StringBuilder();
+		for (int i = 0; i < size(); i++) {
+			if (s.length() > 0)
+				s.append(seperator);
+			s.append(get(i).toString());
+		}
+		return s.toString();
 	}
 
-	public List<String> getNameList() {
-		List<String> names = new ArrayList<String>();
-		for (T element : this)
-			names.add(element.getName());
-		return names;
-	}
-
-	@Override
-	public Iterator<T> iterator() {
-		return list.iterator();
+	public String toString(char seperator) {
+		return toString(Character.toString(seperator));
 	}
 }

@@ -1,12 +1,13 @@
 name: SimpleAlias
-version: 1.5.0
+version: 1.6.0
 author: DarkBlade12
 website: http://dev.bukkit.org/profiles/DarkBladee12
+description: SimpleAlias allows you to create and manage aliases easily
 softdepend: [Vault, Factions]
 
 main: com.darkblade12.simplealias.SimpleAlias
 
 commands:
-  sa:
+  alias:
     usage: /<command> help
-    aliases: [simplealias, salias]
+    aliases: [simplealias, salias, sa]

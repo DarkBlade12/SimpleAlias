@@ -4,33 +4,29 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@SuppressWarnings("unchecked")
 public abstract class Hook<P extends JavaPlugin> {
 	protected P plugin;
-	protected static boolean enabled;
+	protected boolean enabled;
 
-	@SuppressWarnings("unchecked")
-	public boolean load() {
+	public boolean onLoad() {
 		Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(getPluginName());
-		if (plugin == null) {
-			enabled = false;
-			return false;
+		if (plugin != null && plugin.isEnabled()) {
+			this.plugin = (P) plugin;
+			return (enabled = onEnable());
 		}
-		this.plugin = (P) plugin;
-		enabled = initiate();
-		return enabled;
+		return false;
 	}
 
-	protected boolean initiate() {
-		return true;
-	}
+	protected abstract boolean onEnable();
 
 	public abstract String getPluginName();
 
-	public P getPlugin() {
+	public final P getPlugin() {
 		return this.plugin;
 	}
 
-	public static boolean isEnabled() {
+	public final boolean isEnabled() {
 		return enabled;
 	}
 }
