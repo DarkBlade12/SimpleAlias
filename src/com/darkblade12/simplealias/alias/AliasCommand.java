@@ -47,7 +47,7 @@ final class AliasCommand extends Command {
 		if (registered)
 			throw new IllegalStateException("Command is already registered");
 		try {
-			return ((SimpleCommandMap) commandMap.get(Bukkit.getServer())).register(getName(), this);
+			return registered = ((SimpleCommandMap) commandMap.get(Bukkit.getServer())).register(getName(), this);
 		} catch (Exception e) {
 			return false;
 		}
@@ -58,9 +58,8 @@ final class AliasCommand extends Command {
 		if (!registered)
 			throw new IllegalStateException("Command is not registered");
 		try {
-			SimpleCommandMap map = (SimpleCommandMap) commandMap.get(Bukkit.getServer());
-			Map<String, Command> commands = (Map<String, Command>) knownCommands.get(map);
-			commands.remove(getName());
+			((Map<String, Command>) knownCommands.get((SimpleCommandMap) commandMap.get(Bukkit.getServer()))).remove(getName());
+			registered = false;
 			return true;
 		} catch (Exception e) {
 			return false;

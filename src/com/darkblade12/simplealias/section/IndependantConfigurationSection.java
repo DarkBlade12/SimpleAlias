@@ -7,8 +7,8 @@ import com.darkblade12.simplealias.nameable.Nameable;
 import com.darkblade12.simplealias.section.exception.SectionNotFoundException;
 
 public final class IndependantConfigurationSection implements Nameable {
-	private String path;
-	private String name;
+	private final String path;
+	private final String name;
 
 	public IndependantConfigurationSection(String path) {
 		this.path = path;

@@ -3,7 +3,7 @@ version: 1.6.0
 author: DarkBlade12
 website: http://dev.bukkit.org/profiles/DarkBladee12
 description: SimpleAlias allows you to create and manage aliases easily
-softdepend: [Vault, Factions]
+softdepend: [Vault, Factions, Multiverse-Core, Multiworld, PlotMe, MyWorlds]
 
 main: com.darkblade12.simplealias.SimpleAlias
 
