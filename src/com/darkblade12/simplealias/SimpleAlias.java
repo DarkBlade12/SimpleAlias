@@ -13,7 +13,7 @@ import com.darkblade12.simplealias.metrics.MetricsLite;
 import com.darkblade12.simplealias.reader.types.ConfigurationTemplateReader;
 
 public final class SimpleAlias extends JavaPlugin {
-	public static final String PREFIX = "§8§l[§a§oSimple§7§oAlias§8§l]§r ";
+	public static final String PREFIX = "Â§8Â§l[Â§aÂ§oSimpleÂ§7Â§oAliasÂ§8Â§l]Â§r ";
 	private static SimpleAlias instance;
 	private Logger logger;
 	private ConfigurationTemplateReader templateReader;

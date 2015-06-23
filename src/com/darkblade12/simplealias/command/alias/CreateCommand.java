@@ -1,7 +1,6 @@
 package com.darkblade12.simplealias.command.alias;
 
-import net.minecraft.util.org.apache.commons.lang3.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 
 import com.darkblade12.simplealias.SimpleAlias;
@@ -19,16 +18,16 @@ public final class CreateCommand implements ICommand {
 		String name = StringUtils.removeStart(params[0], "/");
 		AliasManager manager = SimpleAlias.getAliasManager();
 		if (manager.hasAlias(name)) {
-			sender.sendMessage(SimpleAlias.PREFIX + "§cAn alias with this name already exists!");
+			sender.sendMessage(SimpleAlias.PREFIX + "Â§cAn alias with this name already exists!");
 		} else if (!Alias.isValid(name)) {
-			sender.sendMessage(SimpleAlias.PREFIX + "§cThe name of this alias contains illegal characters!");
+			sender.sendMessage(SimpleAlias.PREFIX + "Â§cThe name of this alias contains illegal characters!");
 		} else {
 			try {
 				manager.createAlias(name);
-				sender.sendMessage(SimpleAlias.PREFIX + "§aThe alias with the name §6" + name + " §awas successfully created.");
+				sender.sendMessage(SimpleAlias.PREFIX + "Â§aThe alias with the name Â§6" + name + " Â§awas successfully created.");
 			} catch (Exception e) {
 				e.printStackTrace();
-				sender.sendMessage(SimpleAlias.PREFIX + "§cThe alias creation failed! Cause: " + e.getMessage());
+				sender.sendMessage(SimpleAlias.PREFIX + "Â§cThe alias creation failed! Cause: " + e.getMessage());
 			}
 		}
 	}

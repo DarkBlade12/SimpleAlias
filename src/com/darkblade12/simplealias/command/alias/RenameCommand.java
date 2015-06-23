@@ -1,7 +1,6 @@
 package com.darkblade12.simplealias.command.alias;
 
-import net.minecraft.util.org.apache.commons.lang3.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 
 import com.darkblade12.simplealias.SimpleAlias;
@@ -20,16 +19,16 @@ public final class RenameCommand implements ICommand {
 		AliasManager manager = SimpleAlias.getAliasManager();
 		Alias a = manager.getAlias(name);
 		if (a == null) {
-			sender.sendMessage(SimpleAlias.PREFIX + "§cAn alias with this name doesn't exist!");
+			sender.sendMessage(SimpleAlias.PREFIX + "Â§cAn alias with this name doesn't exist!");
 		} else {
 			String newName = StringUtils.removeStart(params[1], "/");
 			if (manager.hasAlias(newName)) {
-				sender.sendMessage(SimpleAlias.PREFIX + "§cAn alias with this name already exists!");
+				sender.sendMessage(SimpleAlias.PREFIX + "Â§cAn alias with this name already exists!");
 			} else if (!Alias.isValid(newName)) {
-				sender.sendMessage(SimpleAlias.PREFIX + "§cThe new name of this alias contains illegal characters!");
+				sender.sendMessage(SimpleAlias.PREFIX + "Â§cThe new name of this alias contains illegal characters!");
 			} else {
 				a.setName(newName);
-				sender.sendMessage(SimpleAlias.PREFIX + "§aThe alias §6" + name + " §awas renamed to §e" + newName + "§a.");
+				sender.sendMessage(SimpleAlias.PREFIX + "Â§aThe alias Â§6" + name + " Â§awas renamed to Â§e" + newName + "Â§a.");
 			}
 		}
 	}

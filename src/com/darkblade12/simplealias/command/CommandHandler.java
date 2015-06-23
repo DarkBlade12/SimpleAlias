@@ -41,9 +41,9 @@ public abstract class CommandHandler implements CommandExecutor {
 				CommandDetails c = getDetails(i);
 				String[] params = trimParams(args);
 				if (!(sender instanceof Player) && !c.executableAsConsole())
-					sender.sendMessage("§cThis command can't be executed as console!");
+					sender.sendMessage("Â§cThis command can't be executed as console!");
 				else if (!c.permission().hasPermission(sender) && !masterPermissions.hasAnyPermission(sender))
-					sender.sendMessage("§cYou don't have permission for this command!");
+					sender.sendMessage("Â§cYou don't have permission for this command!");
 				else if (!checkUsage(i, params))
 					showUsage(sender, label, i);
 				else
@@ -84,7 +84,7 @@ public abstract class CommandHandler implements CommandExecutor {
 	}
 
 	public void showUsage(CommandSender sender, String label, ICommand i) {
-		sender.sendMessage("§cInvalid usage!\n§6" + getUsage(label, i));
+		sender.sendMessage("Â§cInvalid usage!\nÂ§6" + getUsage(label, i));
 	}
 
 	public static CommandDetails getDetails(ICommand i) {
@@ -133,11 +133,11 @@ public abstract class CommandHandler implements CommandExecutor {
 				try {
 					page = Integer.parseInt(input);
 					if (!helpPage.hasPage(sender, page)) {
-						sender.sendMessage(SimpleAlias.PREFIX + "§cThis help page doesn't exist!");
+						sender.sendMessage(SimpleAlias.PREFIX + "Â§cThis help page doesn't exist!");
 						return;
 					}
 				} catch (Exception e) {
-					sender.sendMessage(SimpleAlias.PREFIX + "§6" + input + " §cisn't numeric!");
+					sender.sendMessage(SimpleAlias.PREFIX + "Â§6" + input + " Â§cisn't numeric!");
 					return;
 				}
 			}

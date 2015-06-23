@@ -33,7 +33,7 @@ public final class VaultHook extends Hook<Vault> {
 	}
 
 	public double getBalance(Player p) {
-		return isEconomyEnabled() ? economy.getBalance(p.getName()) : 0;
+		return isEconomyEnabled() ? economy.getBalance(p) : 0;
 	}
 
 	public boolean withdrawMoney(Player p, double amount) {
@@ -42,7 +42,7 @@ public final class VaultHook extends Hook<Vault> {
 		if (getBalance(p) < amount) {
 			return false;
 		} else {
-			economy.withdrawPlayer(p.getName(), amount);
+			economy.withdrawPlayer(p, amount);
 			return true;
 		}
 	}

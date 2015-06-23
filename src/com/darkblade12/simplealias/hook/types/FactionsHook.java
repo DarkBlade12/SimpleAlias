@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 
 import com.darkblade12.simplealias.hook.Hook;
 import com.massivecraft.factions.Factions;
-import com.massivecraft.factions.entity.UPlayer;
+import com.massivecraft.factions.entity.MPlayer;
 
 public final class FactionsHook extends Hook<Factions> {
 	@Override
@@ -13,7 +13,7 @@ public final class FactionsHook extends Hook<Factions> {
 	}
 
 	public String getFaction(Player p) {
-		String faction = UPlayer.get(p).getFactionName();
+		String faction = MPlayer.get(p).getFactionName();
 		return faction == null ? "N/A" : faction;
 	}
 

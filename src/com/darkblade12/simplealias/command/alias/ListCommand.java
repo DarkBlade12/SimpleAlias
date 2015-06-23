@@ -16,8 +16,8 @@ public final class ListCommand implements ICommand {
 	public void execute(CommandHandler handler, CommandSender sender, String label, String[] params) {
 		AliasManager manager = SimpleAlias.getAliasManager();
 		if (manager.getAliasAmount() == 0)
-			sender.sendMessage(SimpleAlias.PREFIX + "§cThere are no aliases, yet!");
+			sender.sendMessage(SimpleAlias.PREFIX + "Â§cThere are no aliases, yet!");
 		else
-			sender.sendMessage(SimpleAlias.PREFIX + "§2All available aliases:" + ColorCode.convertToString(manager.getAliases(), '\u25A9'));
+			sender.sendMessage(SimpleAlias.PREFIX + "Â§2All available aliases:" + ColorCode.convertToString(manager.getAliases(), '\u25A9'));
 	}
 }

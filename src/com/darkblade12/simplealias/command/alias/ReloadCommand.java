@@ -14,6 +14,6 @@ public final class ReloadCommand implements ICommand {
 	public void execute(CommandHandler handler, CommandSender sender, String label, String[] params) {
 		long start = System.currentTimeMillis();
 		SimpleAlias.instance().onReload();
-		sender.sendMessage(SimpleAlias.PREFIX + "ง7Plugin was successfully reloaded. (" + (System.currentTimeMillis() - start) + " ms)");
+		sender.sendMessage(SimpleAlias.PREFIX + "ยง7Plugin was successfully reloaded. (" + (System.currentTimeMillis() - start) + " ms)");
 	}
 }

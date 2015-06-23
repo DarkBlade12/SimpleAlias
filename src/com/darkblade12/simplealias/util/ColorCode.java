@@ -120,7 +120,7 @@ public enum ColorCode {
 
 	@Override
 	public String toString() {
-		return new String(new char[] { '§', colorChar });
+		return new String(new char[] { 'Â§', colorChar });
 	}
 
 	public static ColorCode random(boolean includeBlackAndWhite) {
@@ -143,7 +143,7 @@ public enum ColorCode {
 		StringBuilder s = new StringBuilder();
 		for (Nameable n : c) {
 			ColorCode code = random();
-			s.append("\n§r " + code + bulletCharacter + " " + code.getComplementary() + "§o" + n.getName());
+			s.append("\nÂ§r " + code + bulletCharacter + " " + code.getComplementary() + "Â§o" + n.getName());
 		}
 		return s.toString();
 	}

@@ -9,9 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import net.minecraft.util.org.apache.commons.lang3.StringEscapeUtils;
-import net.minecraft.util.org.apache.commons.lang3.StringUtils;
-
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -173,8 +172,7 @@ public final class Alias implements Nameable, Executable {
 					Executor executor = Executor.fromName(section.getString("Executor"));
 					if (executor == null)
 						throw new InvalidSectionException(action, ACTIONS, "is invalid (unknown executor)");
-					this.actions.add(new CommandAction(action, worlds, nodes, groups, params, priority, translateColorCodes, StringUtils.removeStart(command, "/"), executor, section
-							.getBoolean("Grant_Permission")));
+					this.actions.add(new CommandAction(action, worlds, nodes, groups, params, priority, translateColorCodes, StringUtils.removeStart(command, "/"), executor, section.getBoolean("Grant_Permission")));
 				} else if (type == Type.MESSAGE) {
 					String text;
 					if (section.isList("Text")) {
@@ -193,8 +191,7 @@ public final class Alias implements Nameable, Executable {
 						if (text == null)
 							throw new InvalidSectionException(action, ACTIONS, "is invalid (text is null)");
 					}
-					this.actions.add(new MessageAction(action, worlds, nodes, groups, params, priority, translateColorCodes, ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(text)),
-							section.getBoolean("Broadcast")));
+					this.actions.add(new MessageAction(action, worlds, nodes, groups, params, priority, translateColorCodes, ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(text)), section.getBoolean("Broadcast")));
 				}
 			}
 		}
@@ -297,7 +294,7 @@ public final class Alias implements Nameable, Executable {
 			if (loggingEnabled)
 				Bukkit.getLogger().info(loggingMessage.replace("<player_name>", p.getName()).replace("<alias>", "/" + name + (params.length > 0 ? " " + StringUtils.join(params, " ") : "")));
 			if (!isEnabled(p.getWorld()) && !ENABLED_WORLDS_BYPASS_PERMISSIONS.hasAnyPermission(p)) {
-				p.sendMessage("§cThis alias isn't enabled in your world!");
+				p.sendMessage("Â§cThis alias isn't enabled in your world!");
 				return;
 			}
 			if (permissionEnabled && !hasPermission(p)) {
@@ -328,7 +325,7 @@ public final class Alias implements Nameable, Executable {
 				return;
 			}
 		} else if (!executableAsConsole) {
-			sender.sendMessage("§cThis alias can't be executed as console!");
+			sender.sendMessage("Â§cThis alias can't be executed as console!");
 			return;
 		}
 		if (delayEnabled && !DELAY_BYPASS_PERMISSIONS.hasAnyPermission(sender)) {

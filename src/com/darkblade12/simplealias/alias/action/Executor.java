@@ -3,8 +3,7 @@ package com.darkblade12.simplealias.alias.action;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.util.org.apache.commons.lang3.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;

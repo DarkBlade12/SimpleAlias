@@ -8,9 +8,9 @@ import org.bukkit.command.CommandSender;
 import com.darkblade12.simplealias.SimpleAlias;
 
 public final class CommandHelpPage {
-	private static final String HEADER = SimpleAlias.PREFIX + "§eHelp page for the §6<label> §ecommand";
-	private static final String FOOTER = "§8§m--------------------§8[§7Page <current_page> §7of §6§l<page_amount>§8]§m---------------------";
-	private static final String COMMAND_FORMAT = "§a\u2022 <command>\n  §7\u25BB <description>\n  §7\u25BB Permission: §2<permission>";
+	private static final String HEADER = SimpleAlias.PREFIX + "Â§eHelp page for the Â§6<label> Â§ecommand";
+	private static final String FOOTER = "Â§8Â§m--------------------Â§8[Â§7Page <current_page> Â§7of Â§6Â§l<page_amount>Â§8]Â§m---------------------";
+	private static final String COMMAND_FORMAT = "Â§a\u2022 <command>\n  Â§7\u25BB <description>\n  Â§7\u25BB Permission: Â§2<permission>";
 	private CommandHandler handler;
 	private int commandsPerPage;
 
@@ -32,9 +32,9 @@ public final class CommandHelpPage {
 			if (i > visible.size() - 1)
 				break;
 			else
-				b.append("\n§r" + insertIntoFormat(label, visible.get(i)));
+				b.append("\nÂ§r" + insertIntoFormat(label, visible.get(i)));
 		int pages = getPages(sender);
-		b.append("\n§r" + FOOTER.replace("<current_page>", (page == pages ? "§6§l" : "§a§l") + Integer.toString(page)).replace("<page_amount>", Integer.toString(pages)));
+		b.append("\nÂ§r" + FOOTER.replace("<current_page>", (page == pages ? "Â§6Â§l" : "Â§aÂ§l") + Integer.toString(page)).replace("<page_amount>", Integer.toString(pages)));
 		sender.sendMessage(b.toString());
 	}
 

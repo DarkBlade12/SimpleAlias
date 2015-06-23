@@ -1,7 +1,6 @@
 package com.darkblade12.simplealias.command.alias;
 
-import net.minecraft.util.org.apache.commons.lang3.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 
 import com.darkblade12.simplealias.SimpleAlias;
@@ -20,10 +19,10 @@ public final class RemoveCommand implements ICommand {
 		AliasManager manager = SimpleAlias.getAliasManager();
 		Alias a = manager.getAlias(name);
 		if (a == null) {
-			sender.sendMessage(SimpleAlias.PREFIX + "§cAn alias with this name doesn't exist!");
+			sender.sendMessage(SimpleAlias.PREFIX + "Â§cAn alias with this name doesn't exist!");
 		} else {
 			manager.unregister(a);
-			sender.sendMessage(SimpleAlias.PREFIX + "§aThe alias §6" + name + " §awas removed.");
+			sender.sendMessage(SimpleAlias.PREFIX + "Â§aThe alias Â§6" + name + " Â§awas removed.");
 		}
 	}
 }
