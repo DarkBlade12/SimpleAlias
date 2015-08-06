@@ -2,6 +2,7 @@ package com.darkblade12.simplealias.reader.types;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.darkblade12.simplealias.Settings;
 import com.darkblade12.simplealias.reader.Reader;
 
 public final class ConfigurationReader extends Reader<YamlConfiguration> {
@@ -27,6 +28,9 @@ public final class ConfigurationReader extends Reader<YamlConfiguration> {
 			try {
 				return YamlConfiguration.loadConfiguration(outputFile);
 			} catch (Exception e) {
+				if(Settings.isDebugEnabled()) {
+					e.printStackTrace();
+				}
 				return null;
 			}
 		} else
@@ -45,6 +49,9 @@ public final class ConfigurationReader extends Reader<YamlConfiguration> {
 				configuration = data;
 			return true;
 		} catch (Exception e) {
+			if(Settings.isDebugEnabled()) {
+				e.printStackTrace();
+			}
 			return false;
 		}
 	}

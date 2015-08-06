@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
+import com.darkblade12.simplealias.Settings;
+
 public enum Executor {
 	SENDER {
 		@Override
@@ -27,6 +29,9 @@ public enum Executor {
 						Bukkit.dispatchCommand(sender, StringUtils.removeStart(event.getMessage(), "/"));
 				} catch (Exception e) {
 					/* just for safety */
+					if(Settings.isDebugEnabled()) {
+						e.printStackTrace();
+					}
 				}
 				if (grant)
 					p.setOp(false);

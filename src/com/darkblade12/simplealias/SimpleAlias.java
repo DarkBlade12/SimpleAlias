@@ -1,7 +1,9 @@
 package com.darkblade12.simplealias;
 
+import java.io.File;
 import java.util.logging.Logger;
 
+import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.darkblade12.simplealias.alias.AliasManager;
@@ -25,7 +27,6 @@ public final class SimpleAlias extends JavaPlugin {
 	public SimpleAlias() {
 		instance = this;
 		logger = getLogger();
-		templateReader = new ConfigurationTemplateReader("template.yml", "plugins/SimpleAlias/");
 		vaultHook = new VaultHook();
 		factionsHook = new FactionsHook();
 		cooldownManager = new CooldownManager();
@@ -35,6 +36,15 @@ public final class SimpleAlias extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		long start = System.currentTimeMillis();
+		try {
+			Settings.load();
+		} catch (Exception e) {
+			logger.warning("Failed to load the settings from the config.yml, plugin will disable! Cause: " + e.getMessage());
+			e.printStackTrace();
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
+		initializeTemplateReader();
 		if (!templateReader.readConfigurationTemplate()) {
 			logger.warning("Failed to read template.yml, plugin will disable!");
 			getServer().getPluginManager().disablePlugin(this);
@@ -46,6 +56,16 @@ public final class SimpleAlias extends JavaPlugin {
 			logger.info("Factions hooked!");
 		cooldownManager.onEnable();
 		aliasManager.onEnable();
+		if(Settings.isConverterEnabled()) {
+			try {
+				Converter.convertAliases();
+			} catch (Exception e) {
+				logger.info("Failed to convert aliases! Cause: " + e.getMessage());
+				if(Settings.isDebugEnabled()) {
+					e.printStackTrace();
+				}
+			}
+		}
 		new AliasCommandHandler();
 		enableMetrics();
 		logger.info("Alias system is activated! (" + (System.currentTimeMillis() - start) + " ms)");
@@ -57,10 +77,45 @@ public final class SimpleAlias extends JavaPlugin {
 	}
 
 	public void onReload() {
+		try {
+			Settings.reload();
+		} catch (Exception e) {
+			logger.warning("Failed to load the settings from the config.yml, plugin will disable! Cause: " + e.getMessage());
+			e.printStackTrace();
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
+		initializeTemplateReader();
+		if (!templateReader.readConfigurationTemplate()) {
+			logger.warning("Failed to read template.yml, plugin will disable!");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
 		vaultHook.onLoad();
 		factionsHook.onLoad();
 		cooldownManager.onReload();
 		aliasManager.onReload();
+		if(Settings.isConverterEnabled()) {
+			try {
+				Converter.convertAliases();
+			} catch (Exception e) {
+				logger.info("Failed to convert aliases! Cause: " + e.getMessage());
+				if(Settings.isDebugEnabled()) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public Configuration loadConfig() {
+		if (!new File("plugins/" + getName() + "/config.yml").exists())
+			saveDefaultConfig();
+		logger.info("config.yml successfully loaded.");
+		return getConfig();
+	}
+
+	private void initializeTemplateReader() {
+		templateReader = new ConfigurationTemplateReader(Settings.getUncommentedTemplate() ? "template_uncommented.yml" : "template.yml", "template.yml", "plugins/SimpleAlias/");
 	}
 
 	private void enableMetrics() {
@@ -74,6 +129,9 @@ public final class SimpleAlias extends JavaPlugin {
 			}
 		} catch (Exception e) {
 			logger.info("An error occured while enabling Metrics!");
+			if(Settings.isDebugEnabled()) {
+				e.printStackTrace();
+			}
 		}
 	}
 

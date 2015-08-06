@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import com.darkblade12.simplealias.Settings;
 import com.darkblade12.simplealias.reader.Reader;
 
 public final class SerializableReader<S extends Serializable> extends Reader<S> {
@@ -26,6 +27,9 @@ public final class SerializableReader<S extends Serializable> extends Reader<S> 
 			input.close();
 			return data;
 		} catch (Exception e) {
+			if(Settings.isDebugEnabled()) {
+				e.printStackTrace();
+			}
 			return null;
 		}
 	}
@@ -41,6 +45,9 @@ public final class SerializableReader<S extends Serializable> extends Reader<S> 
 			output.close();
 			return true;
 		} catch (Exception e) {
+			if(Settings.isDebugEnabled()) {
+				e.printStackTrace();
+			}
 			return false;
 		}
 	}

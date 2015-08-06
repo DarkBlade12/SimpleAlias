@@ -1,0 +1,17 @@
+# Copyright DarkBlade12 - All rights reserved.
+# DarkBlade12 is the developer and respective owner of this plugin.
+
+# This section contains general plugin settings
+General_Settings:
+
+ # Determines whether full error logs are shown in the console
+ # This is helpful when you have problems you can't solve by yourself and want to show an exception to the developer
+ Debug_Enabled: false
+
+ # Determines whether the uncommented or the commented template will be used and copied
+ # This setting is for more advanced users who know about all the options and want a clearer template
+ # Please make sure to delete your old 'template.yml' file after changing this setting (reloading the server/plugin or creating an alias will create a new template file)
+ Uncommented_Template: false
+ 
+ # Determines whether the converter for old alias configs is enabled
+ Converter_Enabled: false

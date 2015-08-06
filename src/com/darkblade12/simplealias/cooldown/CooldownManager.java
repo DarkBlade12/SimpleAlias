@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.entity.Player;
 
+import com.darkblade12.simplealias.Settings;
 import com.darkblade12.simplealias.SimpleAlias;
 import com.darkblade12.simplealias.manager.Manager;
 import com.darkblade12.simplealias.nameable.NameableList;
@@ -36,6 +37,9 @@ public final class CooldownManager extends Manager {
 						lists.add(CooldownList.fromFile(name.substring(0, index)));
 					} catch (Exception e) {
 						l.info("Failed to load the cooldown list of player '" + name + "'. Cause: " + e.getMessage());
+						if(Settings.isDebugEnabled()) {
+							e.printStackTrace();
+						}
 					}
 			}
 		int amount = lists.size();

@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import com.darkblade12.simplealias.Settings;
 import com.darkblade12.simplealias.SimpleAlias;
 import com.darkblade12.simplealias.alias.Alias;
 import com.darkblade12.simplealias.alias.AliasManager;
@@ -34,18 +35,20 @@ public final class MessageCommand implements ICommand {
 			sender.sendMessage(SimpleAlias.PREFIX + "§cYou can't create an alias which executes itself!");
 		} else {
 			String[] textArray = (String[]) Arrays.copyOfRange(params, 1, params.length);
-			String message = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(StringUtils.join(textArray, ' ')));
+			String text = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(StringUtils.join(textArray, ' ')));
 			Alias alias;
 			try {
 				alias = manager.createAlias(name);
 			} catch (Exception e) {
-				e.printStackTrace();
 				sender.sendMessage(SimpleAlias.PREFIX + "§cThe alias creation failed! Cause: " + e.getMessage());
+				if(Settings.isDebugEnabled()) {
+					e.printStackTrace();
+				}
 				return;
 			}
 			List<Action> actions = alias.getActions();
 			actions.clear();
-			actions.add(new MessageAction("DisplayMessage", new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, message, false));
+			actions.add(new MessageAction("DisplayMessage", new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, text, false));
 			List<String> executionOrder = alias.getExecutionOrder();
 			executionOrder.clear();
 			executionOrder.add("DisplayMessage");
@@ -53,8 +56,10 @@ public final class MessageCommand implements ICommand {
 				alias.save();
 				sender.sendMessage(SimpleAlias.PREFIX + "§aThe message alias with the name §6" + name + " §awas successfully created.");
 			} catch (Exception e) {
-				e.printStackTrace();
 				sender.sendMessage(SimpleAlias.PREFIX + "§cThe alias creation failed! Cause: " + e.getMessage());
+				if(Settings.isDebugEnabled()) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

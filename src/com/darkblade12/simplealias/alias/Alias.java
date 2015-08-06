@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import com.darkblade12.simplealias.Settings;
 import com.darkblade12.simplealias.SimpleAlias;
 import com.darkblade12.simplealias.alias.action.Action;
 import com.darkblade12.simplealias.alias.action.Executor;
@@ -154,6 +155,9 @@ public final class Alias implements Nameable, Executable {
 						try {
 							index = Integer.parseInt(s[1]);
 						} catch (Exception e) {
+							if(Settings.isDebugEnabled()) {
+								e.printStackTrace();
+							}
 							throw new InvalidSectionException(action, ACTIONS, "is invalid (enabled params list format)");
 						}
 						if (params.containsKey(index))
@@ -306,44 +310,11 @@ public final class Alias implements Nameable, Executable {
 				Type type = action.getType();
 				actions.set(name + ".Type", type.name());
 				Set<String> worlds = action.getEnabledWorlds();
-				if (worlds.isEmpty()) {
-					actions.set(name + ".Enabled_Worlds", null);
-				} else {
-					String worldsString = "";
-					for (String world : worlds) {
-						if (worldsString.length() > 0) {
-							worldsString += ", ";
-						}
-						worldsString += world;
-					}
-					actions.set(name + ".Enabled_Worlds", worldsString);
-				}
+				actions.set(name + ".Enabled_Worlds", worlds.isEmpty() ? null : StringUtils.join(worlds, ", "));
 				Set<String> permissionNodes = action.getEnabledPermissionNodes();
-				if (permissionNodes.isEmpty()) {
-					actions.set(name + ".Enabled_Permission_Nodes", null);
-				} else {
-					String permissionNodesString = "";
-					for (String permissionNode : permissionNodes) {
-						if (permissionNodesString.length() > 0) {
-							permissionNodesString += ", ";
-						}
-						permissionNodesString += permissionNode;
-					}
-					actions.set(name + ".Enabled_Permission_Nodes", permissionNodesString);
-				}
+				actions.set(name + ".Enabled_Permission_Nodes", permissionNodes.isEmpty() ? null : StringUtils.join(permissionNodes, ", "));
 				Set<String> permissionGroups = action.getEnabledPermissionGroups();
-				if (permissionGroups.isEmpty()) {
-					actions.set(name + ".Enabled_Permission_Groups", null);
-				} else {
-					String permissionGroupsString = "";
-					for (String permissionGroup : permissionGroups) {
-						if (permissionGroupsString.length() > 0) {
-							permissionGroupsString += ", ";
-						}
-						permissionGroupsString += permissionGroup;
-					}
-					actions.set(name + ".Enabled_Permission_Groups", permissionGroupsString);
-				}
+				actions.set(name + ".Enabled_Permission_Groups", permissionGroups.isEmpty() ? null : StringUtils.join(permissionGroups, ", "));
 				Map<Integer, String> params = action.getEnabledParams();
 				if (params.isEmpty()) {
 					actions.set(name + ".Enabled_Params", null);
@@ -370,25 +341,19 @@ public final class Alias implements Nameable, Executable {
 					actions.set(name + ".Broadcast", messageAction.getBroadcast());
 				}
 			}
-			for(String savedAction : actions.getKeys(false)) {
-				if(this.actions.contains(savedAction)) {
+			for (String savedAction : actions.getKeys(false)) {
+				if (this.actions.contains(savedAction)) {
 					continue;
 				}
 				actions.set(savedAction, null);
 			}
 		}
-		if (executionOrder.isEmpty()) {
-			generalSettings.set("Execution_Order", null);
-		} else {
-			String executionOrderString = "";
-			for (String actionName : executionOrder) {
-				if (executionOrderString.length() > 0) {
-					executionOrderString += ", ";
-				}
-				executionOrderString += actionName;
-			}
-			generalSettings.set("Execution_Order", executionOrderString);
-		}
+		generalSettings.set("Execution_Order", executionOrder.isEmpty() ? null : StringUtils.join(executionOrder, ", "));
+		ConfigurationSection permission = PERMISSION.getConfigurationSection(c);
+		permission.set("Enabled", permissionEnabled);
+		permission.set("Node", permissionNode);
+		permission.set("Groups", permissionGroups.isEmpty() ? null : StringUtils.join(permissionGroups, ", "));
+		permission.set("Message", permissionMessage == null ? null : StringEscapeUtils.escapeJava(permissionMessage.replace('§', '&')));
 		ConfigurationSection delay = DELAY.getConfigurationSection(c, false);
 		delay.set("Enabled", delayEnabled);
 		delay.set("Cancel_On_Move", delayCancelOnMove);
@@ -509,6 +474,30 @@ public final class Alias implements Nameable, Executable {
 		command.unregister();
 		command = new AliasCommand(this);
 		command.register();
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setExecutableAsConsole(boolean executableAsConsole) {
+		this.executableAsConsole = executableAsConsole;
+	}
+
+	public void setCooldownEnabled(boolean cooldownEnabled) {
+		this.cooldownEnabled = cooldownEnabled;
+	}
+
+	public void setCooldownDuration(int cooldownDuration) {
+		this.cooldownDuration = cooldownDuration;
+	}
+
+	public void setPermissionEnabled(boolean permissionEnabled) {
+		this.permissionEnabled = permissionEnabled;
+	}
+
+	public void setPermissionNode(String permissionNode) {
+		this.permissionNode = permissionNode;
 	}
 
 	@Override

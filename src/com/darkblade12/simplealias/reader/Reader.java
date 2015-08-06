@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+import com.darkblade12.simplealias.Settings;
 import com.darkblade12.simplealias.SimpleAlias;
 
 public abstract class Reader<D> {
@@ -45,6 +46,9 @@ public abstract class Reader<D> {
 				FileUtils.copyFile(outputFile, destination);
 				return true;
 			} catch (IOException e) {
+				if(Settings.isDebugEnabled()) {
+					e.printStackTrace();
+				}
 				return false;
 			}
 		else

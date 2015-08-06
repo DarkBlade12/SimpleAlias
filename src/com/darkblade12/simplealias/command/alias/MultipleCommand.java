@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 
+import com.darkblade12.simplealias.Settings;
 import com.darkblade12.simplealias.SimpleAlias;
 import com.darkblade12.simplealias.alias.Alias;
 import com.darkblade12.simplealias.alias.AliasManager;
@@ -50,8 +51,10 @@ public final class MultipleCommand implements ICommand {
 			try {
 				alias = manager.createAlias(name);
 			} catch (Exception e) {
-				e.printStackTrace();
 				sender.sendMessage(SimpleAlias.PREFIX + "§cThe alias creation failed! Cause: " + e.getMessage());
+				if(Settings.isDebugEnabled()) {
+					e.printStackTrace();
+				}
 				return;
 			}
 			List<Action> aliasActions = alias.getActions();
@@ -64,8 +67,10 @@ public final class MultipleCommand implements ICommand {
 				alias.save();
 				sender.sendMessage(SimpleAlias.PREFIX + "§aThe multiple command alias with the name §6" + name + " §awas successfully created.");
 			} catch (Exception e) {
-				e.printStackTrace();
 				sender.sendMessage(SimpleAlias.PREFIX + "§cThe alias creation failed! Cause: " + e.getMessage());
+				if(Settings.isDebugEnabled()) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

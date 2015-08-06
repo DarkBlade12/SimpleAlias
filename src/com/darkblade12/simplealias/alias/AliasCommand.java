@@ -10,6 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 
+import com.darkblade12.simplealias.Settings;
+
 final class AliasCommand extends Command {
 	private static Field commandMap;
 	private static Field knownCommands;
@@ -43,18 +45,21 @@ final class AliasCommand extends Command {
 		return alias.isPermissionEnabled() ? target instanceof Player ? alias.hasPermission((Player) target) : true : true;
 	}
 
-	public boolean register() {
+	public boolean register() throws IllegalStateException {
 		if (registered)
 			throw new IllegalStateException("Command is already registered");
 		try {
 			return registered = ((SimpleCommandMap) commandMap.get(Bukkit.getServer())).register(getName(), this);
 		} catch (Exception e) {
+			if (Settings.isDebugEnabled()) {
+				e.printStackTrace();
+			}
 			return false;
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean unregister() {
+	public boolean unregister() throws IllegalStateException {
 		if (!registered)
 			throw new IllegalStateException("Command is not registered");
 		try {
@@ -62,6 +67,9 @@ final class AliasCommand extends Command {
 			registered = false;
 			return true;
 		} catch (Exception e) {
+			if (Settings.isDebugEnabled()) {
+				e.printStackTrace();
+			}
 			return false;
 		}
 	}
