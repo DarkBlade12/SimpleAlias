@@ -11,6 +11,7 @@ public final class AliasCommandHandler extends CommandHandler {
 	@Override
 	protected void registerCommands() {
 		register(CreateCommand.class);
+		register(SingleCommand.class);
 		register(RemoveCommand.class);
 		register(RenameCommand.class);
 		register(ListCommand.class);

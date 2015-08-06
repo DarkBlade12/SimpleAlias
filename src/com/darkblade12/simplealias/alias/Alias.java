@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -103,25 +104,21 @@ public final class Alias implements Nameable, Executable {
 		if (enabledWorldsString != null)
 			for (String world : enabledWorldsString.split(", "))
 				enabledWorlds.add(world);
-		else
-			for (World w : Bukkit.getWorlds())
-				enabledWorlds.add(w.getName());
 		executableAsConsole = generalSettings.getBoolean("Executable_As_Console");
 		ConfigurationSection usageCheck = USAGE_CHECK.getConfigurationSection(c, false);
 		if (usageCheck != null) {
 			usageCheckEnabled = usageCheck.getBoolean("Enabled");
-			if (usageCheckEnabled) {
-				usageCheckMinParams = usageCheck.getInt("Min_Params");
-				if (usageCheckMinParams < 0)
-					throw new InvalidValueException("Min_Params", USAGE_CHECK, "is invalid (lower than 0)");
-				usageCheckMaxParams = usageCheck.getInt("Max_Params");
-				if (usageCheckMaxParams < usageCheckMinParams)
-					throw new InvalidValueException("Max_Params", USAGE_CHECK, "is invalid (lower than 'Min_Params' value)");
-				usageCheckMessage = usageCheck.getString("Message");
-				if (usageCheckMessage == null)
-					throw new InvalidValueException("Message", USAGE_CHECK, "is null");
-				usageCheckMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(usageCheckMessage));
-			}
+			usageCheckMinParams = usageCheck.getInt("Min_Params");
+			if (usageCheckEnabled && usageCheckMinParams < 0)
+				throw new InvalidValueException("Min_Params", USAGE_CHECK, "is invalid (lower than 0)");
+			usageCheckMaxParams = usageCheck.getInt("Max_Params");
+			if (usageCheckEnabled && usageCheckMaxParams < usageCheckMinParams)
+				throw new InvalidValueException("Max_Params", USAGE_CHECK, "is invalid (lower than 'Min_Params' value)");
+			String message = usageCheck.getString("Message");
+			if (usageCheckEnabled && message == null)
+				throw new InvalidValueException("Message", USAGE_CHECK, "is null");
+			if (message != null)
+				usageCheckMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(message));
 		}
 		this.actions = new NameableList<Action>();
 		ConfigurationSection actions = ACTIONS.getConfigurationSection(c, false);
@@ -225,61 +222,191 @@ public final class Alias implements Nameable, Executable {
 		ConfigurationSection delay = DELAY.getConfigurationSection(c, false);
 		if (delay != null) {
 			delayEnabled = delay.getBoolean("Enabled");
-			if (delayEnabled) {
-				delayCancelOnMove = delay.getBoolean("Cancel_On_Move");
-				delayDuration = delay.getInt("Duration");
-				if (delayDuration < 1)
-					throw new InvalidValueException("Duration", DELAY, "is invalid (lower than 1)");
-				String message = delay.getString("Message");
-				if (message == null)
-					throw new InvalidValueException("Message", DELAY, "is null");
+			delayCancelOnMove = delay.getBoolean("Cancel_On_Move");
+			delayDuration = delay.getInt("Duration");
+			if (delayEnabled && delayDuration < 1)
+				throw new InvalidValueException("Duration", DELAY, "is invalid (lower than 1)");
+			String message = delay.getString("Message");
+			if (delayEnabled && message == null)
+				throw new InvalidValueException("Message", DELAY, "is null");
+			if (message != null)
 				delayMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(message));
-				String cancelMessage = delay.getString("Cancel_Message");
-				if (cancelMessage == null)
-					throw new InvalidValueException("Cancel_Message", DELAY, "is null");
+			String cancelMessage = delay.getString("Cancel_Message");
+			if (delayEnabled && cancelMessage == null)
+				throw new InvalidValueException("Cancel_Message", DELAY, "is null");
+			if (cancelMessage != null)
 				delayCancelMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(cancelMessage));
-			}
 		}
 		ConfigurationSection cooldown = COOLDOWN.getConfigurationSection(c, false);
 		if (cooldown != null) {
 			cooldownEnabled = cooldown.getBoolean("Enabled");
-			if (cooldownEnabled) {
-				cooldownDuration = cooldown.getInt("Duration");
-				if (cooldownDuration < 1)
-					throw new InvalidValueException("Duration", COOLDOWN, "is invalid (lower than 1)");
-				String message = cooldown.getString("Message");
-				if (message == null)
-					throw new InvalidValueException("Message", COOLDOWN, "is null");
+			cooldownDuration = cooldown.getInt("Duration");
+			if (cooldownEnabled && cooldownDuration < 1)
+				throw new InvalidValueException("Duration", COOLDOWN, "is invalid (lower than 1)");
+			String message = cooldown.getString("Message");
+			if (cooldownEnabled && message == null)
+				throw new InvalidValueException("Message", COOLDOWN, "is null");
+			if (message != null)
 				cooldownMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(message));
-			}
 		}
 		ConfigurationSection cost = COST.getConfigurationSection(c, false);
 		if (cost != null) {
 			costEnabled = v.isEnabled() && v.isEconomyEnabled() && cost.getBoolean("Enabled");
-			if (costEnabled) {
-				costAmount = cost.getDouble("Amount");
-				if (costAmount == 0)
-					throw new InvalidValueException("Amount", COST, "is invalid (equals 0)");
-				else if (costAmount < 0)
-					throw new InvalidValueException("Amount", COST, "is invalid (lower than 0)");
-				String message = cost.getString("Message");
-				if (message == null)
-					throw new InvalidValueException("Message", COST, "is null");
+			costAmount = cost.getDouble("Amount");
+			if (costEnabled && costAmount == 0)
+				throw new InvalidValueException("Amount", COST, "is invalid (equals 0)");
+			else if (costEnabled && costAmount < 0)
+				throw new InvalidValueException("Amount", COST, "is invalid (lower than 0)");
+			String message = cost.getString("Message");
+			if (costEnabled && message == null)
+				throw new InvalidValueException("Message", COST, "is null");
+			if (message != null)
 				costMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(message));
-			}
 		}
 		ConfigurationSection logging = LOGGING.getConfigurationSection(c, false);
 		if (logging != null) {
 			loggingEnabled = logging.getBoolean("Enabled");
-			if (loggingEnabled) {
-				loggingMessage = logging.getString("Message");
-				if (loggingMessage == null)
-					throw new InvalidValueException("Message", LOGGING, "is null");
-			}
+			loggingMessage = logging.getString("Message");
+			if (loggingEnabled && loggingMessage == null)
+				throw new InvalidValueException("Message", LOGGING, "is null");
 		}
 		command = new AliasCommand(this);
 		if (!command.register())
 			throw new Exception("Failed to register the alias as a command");
+	}
+
+	public void save() throws Exception {
+		Configuration c = configurationReader.getConfiguration();
+		ConfigurationSection generalSettings = GENERAL_SETTINGS.getConfigurationSection(c);
+		generalSettings.set("Description", description);
+		if (enabledWorlds.isEmpty()) {
+			generalSettings.set("Enabled_Worlds", null);
+		} else {
+			String enabledWorldsString = "";
+			for (String world : enabledWorlds) {
+				if (enabledWorldsString.length() > 0) {
+					enabledWorldsString += ", ";
+				}
+				enabledWorldsString += world;
+			}
+			generalSettings.set("Enabled_Worlds", enabledWorldsString);
+		}
+		generalSettings.set("Executable_As_Console", executableAsConsole);
+		ConfigurationSection usageCheck = USAGE_CHECK.getConfigurationSection(c, false);
+		usageCheck.set("Enabled", usageCheckEnabled);
+		usageCheck.set("Min_Params", usageCheckMinParams);
+		usageCheck.set("Max_Params", usageCheckMaxParams);
+		usageCheck.set("Message", usageCheckMessage == null ? null : StringEscapeUtils.escapeJava(usageCheckMessage.replace('§', '&')));
+		ConfigurationSection actions = ACTIONS.getConfigurationSection(c, false);
+		if (this.actions.isEmpty()) {
+			generalSettings.set("Actions", null);
+		} else {
+			for (Action action : this.actions) {
+				String name = action.getName();
+				Type type = action.getType();
+				actions.set(name + ".Type", type.name());
+				Set<String> worlds = action.getEnabledWorlds();
+				if (worlds.isEmpty()) {
+					actions.set(name + ".Enabled_Worlds", null);
+				} else {
+					String worldsString = "";
+					for (String world : worlds) {
+						if (worldsString.length() > 0) {
+							worldsString += ", ";
+						}
+						worldsString += world;
+					}
+					actions.set(name + ".Enabled_Worlds", worldsString);
+				}
+				Set<String> permissionNodes = action.getEnabledPermissionNodes();
+				if (permissionNodes.isEmpty()) {
+					actions.set(name + ".Enabled_Permission_Nodes", null);
+				} else {
+					String permissionNodesString = "";
+					for (String permissionNode : permissionNodes) {
+						if (permissionNodesString.length() > 0) {
+							permissionNodesString += ", ";
+						}
+						permissionNodesString += permissionNode;
+					}
+					actions.set(name + ".Enabled_Permission_Nodes", permissionNodesString);
+				}
+				Set<String> permissionGroups = action.getEnabledPermissionGroups();
+				if (permissionGroups.isEmpty()) {
+					actions.set(name + ".Enabled_Permission_Groups", null);
+				} else {
+					String permissionGroupsString = "";
+					for (String permissionGroup : permissionGroups) {
+						if (permissionGroupsString.length() > 0) {
+							permissionGroupsString += ", ";
+						}
+						permissionGroupsString += permissionGroup;
+					}
+					actions.set(name + ".Enabled_Permission_Groups", permissionGroupsString);
+				}
+				Map<Integer, String> params = action.getEnabledParams();
+				if (params.isEmpty()) {
+					actions.set(name + ".Enabled_Params", null);
+				} else {
+					String paramsString = "";
+					for (Entry<Integer, String> param : params.entrySet()) {
+						if (paramsString.length() > 0) {
+							paramsString += ", ";
+						}
+						paramsString += param.getValue() + "@" + param.getKey();
+					}
+					actions.set(name + ".Enabled_Params", paramsString);
+				}
+				actions.set(name + ".Priority", action.getPriority());
+				actions.set(name + ".Translate_Color_Codes", action.getTranslateColorCodes());
+				if (type == Type.COMMAND) {
+					CommandAction commandAction = (CommandAction) action;
+					actions.set(name + ".Command", commandAction.getCommand());
+					actions.set(name + ".Executor", commandAction.getExecutor().name());
+					actions.set(name + ".Grant_Permission", commandAction.getGrantPermission());
+				} else {
+					MessageAction messageAction = (MessageAction) action;
+					actions.set(name + ".Text", messageAction.getText().replace('§', '&'));
+					actions.set(name + ".Broadcast", messageAction.getBroadcast());
+				}
+			}
+			for(String savedAction : actions.getKeys(false)) {
+				if(this.actions.contains(savedAction)) {
+					continue;
+				}
+				actions.set(savedAction, null);
+			}
+		}
+		if (executionOrder.isEmpty()) {
+			generalSettings.set("Execution_Order", null);
+		} else {
+			String executionOrderString = "";
+			for (String actionName : executionOrder) {
+				if (executionOrderString.length() > 0) {
+					executionOrderString += ", ";
+				}
+				executionOrderString += actionName;
+			}
+			generalSettings.set("Execution_Order", executionOrderString);
+		}
+		ConfigurationSection delay = DELAY.getConfigurationSection(c, false);
+		delay.set("Enabled", delayEnabled);
+		delay.set("Cancel_On_Move", delayCancelOnMove);
+		delay.set("Duration", delayDuration);
+		delay.set("Message", delayMessage == null ? null : StringEscapeUtils.escapeJava(delayMessage.replace('§', '&')));
+		delay.set("Cancel_Message", delayCancelMessage == null ? null : StringEscapeUtils.escapeJava(delayCancelMessage.replace('§', '&')));
+		ConfigurationSection cooldown = COOLDOWN.getConfigurationSection(c, false);
+		cooldown.set("Enabled", cooldownEnabled);
+		cooldown.set("Duration", cooldownDuration);
+		cooldown.set("Message", cooldownMessage == null ? null : StringEscapeUtils.escapeJava(cooldownMessage.replace('§', '&')));
+		ConfigurationSection cost = COST.getConfigurationSection(c, false);
+		cost.set("Enabled", costEnabled);
+		cost.set("Amount", costAmount);
+		cost.set("Message", costMessage == null ? null : StringEscapeUtils.escapeJava(costMessage.replace('§', '&')));
+		ConfigurationSection logging = LOGGING.getConfigurationSection(c, false);
+		logging.set("Enabled", loggingEnabled);
+		logging.set("Message", loggingMessage == null ? null : StringEscapeUtils.escapeJava(loggingMessage));
+		configurationReader.saveConfiguration();
 	}
 
 	private void executeActions(CommandSender sender, String[] params) {
@@ -398,7 +525,7 @@ public final class Alias implements Nameable, Executable {
 	}
 
 	public boolean isEnabled(World w) {
-		return enabledWorlds.contains(w.getName());
+		return enabledWorlds.isEmpty() || enabledWorlds.contains(w.getName());
 	}
 
 	public boolean isExecutableAsConsole() {
@@ -422,7 +549,7 @@ public final class Alias implements Nameable, Executable {
 	}
 
 	public List<Action> getActions() {
-		return Collections.unmodifiableList(actions);
+		return actions;
 	}
 
 	public List<Action> getActions(CommandSender sender, String[] params) {
@@ -443,7 +570,7 @@ public final class Alias implements Nameable, Executable {
 	}
 
 	public List<String> getExecutionOrder() {
-		return Collections.unmodifiableList(executionOrder);
+		return executionOrder;
 	}
 
 	public List<String> getExecutionOrder(CommandSender sender, String[] params) {
@@ -473,7 +600,7 @@ public final class Alias implements Nameable, Executable {
 	}
 
 	public Set<String> getPermissionGroups() {
-		return Collections.unmodifiableSet(permissionGroups);
+		return permissionGroups;
 	}
 
 	public boolean hasPermission(Player p) {

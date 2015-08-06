@@ -14,8 +14,7 @@ public final class MessageAction extends Action {
 	private final String text;
 	private final boolean broadcast;
 
-	public MessageAction(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups, Map<Integer, String> enabledParams, int priority,
-			boolean translateColorCodes, String text, boolean broadcast) {
+	public MessageAction(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups, Map<Integer, String> enabledParams, int priority, boolean translateColorCodes, String text, boolean broadcast) {
 		super(name, enabledWorlds, enabledPermissionNodes, enabledPermissionGroups, enabledParams, priority, translateColorCodes);
 		this.text = text;
 		this.broadcast = broadcast;

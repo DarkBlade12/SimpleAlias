@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -36,9 +35,6 @@ public abstract class Action implements Nameable, Executable, Comparable<Action>
 	public Action(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups, Map<Integer, String> enabledParams, int priority, boolean translateColorCodes) {
 		this.name = name;
 		this.enabledWorlds = enabledWorlds;
-		if (enabledWorlds.size() == 0)
-			for (World w : Bukkit.getWorlds())
-				enabledWorlds.add(w.getName());
 		this.enabledPermissionNodes = enabledPermissionNodes;
 		this.enabledPermissionGroups = enabledPermissionGroups;
 		this.enabledParams = enabledParams;
@@ -99,7 +95,7 @@ public abstract class Action implements Nameable, Executable, Comparable<Action>
 	}
 
 	public boolean isEnabled(World w) {
-		return enabledWorlds.contains(w.getName());
+		return enabledWorlds.isEmpty() || enabledWorlds.contains(w.getName());
 	}
 
 	public Set<String> getEnabledPermissionNodes() {

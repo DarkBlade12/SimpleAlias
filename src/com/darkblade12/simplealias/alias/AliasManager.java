@@ -54,8 +54,10 @@ public final class AliasManager extends Manager {
 		Collections.sort(aliases, COMPARATOR);
 	}
 
-	public void createAlias(String name) throws Exception {
-		register(new Alias(name));
+	public Alias createAlias(String name) throws Exception {
+		Alias alias = new Alias(name);
+		register(alias);
+		return alias;
 	}
 
 	public void register(Alias a) {

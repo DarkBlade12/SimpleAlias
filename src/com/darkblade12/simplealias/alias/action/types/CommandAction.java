@@ -15,8 +15,7 @@ public final class CommandAction extends Action {
 	private final Executor executor;
 	private final boolean grantPermission;
 
-	public CommandAction(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups, Map<Integer, String> enabledParams, int priority,
-			boolean translateColorCodes, String command, Executor executor, boolean grantPermission) {
+	public CommandAction(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups, Map<Integer, String> enabledParams, int priority, boolean translateColorCodes, String command, Executor executor, boolean grantPermission) {
 		super(name, enabledWorlds, enabledPermissionNodes, enabledPermissionGroups, enabledParams, priority, translateColorCodes);
 		this.command = command;
 		this.executor = executor;
