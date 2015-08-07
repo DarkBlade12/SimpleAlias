@@ -408,7 +408,10 @@ public final class Alias implements Nameable, Executable {
 						p.sendMessage(cooldownMessage.replace("<remaining_time>", c.getRemainingTimeString()));
 						return;
 					}
-				manager.register(p, Cooldown.fromDuration(name, cooldownDuration));
+				int duration = cooldownDuration;
+				if (delayEnabled && !DELAY_BYPASS_PERMISSIONS.hasAnyPermission(sender))
+					duration += delayDuration;
+				manager.register(p, Cooldown.fromDuration(name, duration));
 			}
 			VaultHook v = SimpleAlias.getVaultHook();
 			if (costEnabled && !COST_BYPASS_PERMISSIONS.hasAnyPermission(p) && !v.withdrawMoney(p, costAmount)) {
@@ -447,6 +450,13 @@ public final class Alias implements Nameable, Executable {
 								cancel();
 								execution.cancel();
 								p.sendMessage(delayCancelMessage);
+								if (cooldownEnabled && !COOLDOWN_BYPASS_PERMISSIONS.hasAnyPermission(p)) {
+									CooldownManager manager = SimpleAlias.getCooldownManager();
+									Cooldown c = manager.getCooldown(p, name);
+									if (c != null)
+										manager.unregister(p, c);
+									manager.register(p, Cooldown.fromDuration(name, cooldownDuration));
+								}
 							}
 						}
 						ticks++;
@@ -695,7 +705,7 @@ public final class Alias implements Nameable, Executable {
 			}
 			b.append("\n§r    §1\u25BB §9§lPriority: §a" + action.getPriority());
 			b.append("\n§r    §1\u25BB §9§lTranslate Color Codes: §a" + action.getTranslateColorCodes());
-			if(t == Type.MESSAGE) {
+			if (t == Type.MESSAGE) {
 				MessageAction message = (MessageAction) action;
 				b.append("\n§r    §1\u25BB §9§lText: §r" + message.getText());
 				b.append("\n§r    §1\u25BB §9§lBroadcast: §a" + message.getBroadcast());
