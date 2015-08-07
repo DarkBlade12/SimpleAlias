@@ -122,88 +122,87 @@ public final class Alias implements Nameable, Executable {
 				usageCheckMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(message));
 		}
 		this.actions = new NameableList<Action>();
-		ConfigurationSection actions = ACTIONS.getConfigurationSection(c, false);
-		if (actions != null) {
-			for (String action : actions.getKeys(false)) {
-				if (this.actions.contains(name))
-					throw new InvalidSectionException(action, ACTIONS, "is invalid (duplicate name)");
-				ConfigurationSection section = actions.getConfigurationSection(action);
-				Type type = Type.fromName(section.getString("Type"));
-				if (type == null)
-					throw new InvalidSectionException(action, ACTIONS, "is invalid (unknown type)");
-				Set<String> worlds = new HashSet<String>();
-				String worldsString = section.getString("Enabled_Worlds");
-				if (worldsString != null)
-					for (String world : worldsString.split(", "))
-						worlds.add(world);
-				Set<String> nodes = new HashSet<String>();
-				String nodesString = section.getString("Enabled_Permission_Nodes");
-				if (nodesString != null)
-					for (String node : nodesString.split(", "))
-						nodes.add(node);
-				Set<String> groups = new HashSet<String>();
-				String groupsString = section.getString("Enabled_Permission_Groups");
-				if (groupsString != null)
-					for (String group : groupsString.split(", "))
-						groups.add(group);
-				Map<Integer, String> params = new HashMap<Integer, String>();
-				String paramsString = section.getString("Enabled_Params");
-				if (paramsString != null)
-					for (String param : paramsString.split(", ")) {
-						String[] s = param.split("@");
-						int index;
-						try {
-							index = Integer.parseInt(s[1]);
-						} catch (Exception e) {
-							if(Settings.isDebugEnabled()) {
-								e.printStackTrace();
-							}
-							throw new InvalidSectionException(action, ACTIONS, "is invalid (enabled params list format)");
+		ConfigurationSection actions = ACTIONS.getConfigurationSection(c);
+		for (String action : actions.getKeys(false)) {
+			if (this.actions.contains(name))
+				throw new InvalidSectionException(action, ACTIONS, "is invalid (duplicate name)");
+			ConfigurationSection section = actions.getConfigurationSection(action);
+			Type type = Type.fromName(section.getString("Type"));
+			if (type == null)
+				throw new InvalidSectionException(action, ACTIONS, "is invalid (unknown type)");
+			Set<String> worlds = new HashSet<String>();
+			String worldsString = section.getString("Enabled_Worlds");
+			if (worldsString != null)
+				for (String world : worldsString.split(", "))
+					worlds.add(world);
+			Set<String> nodes = new HashSet<String>();
+			String nodesString = section.getString("Enabled_Permission_Nodes");
+			if (nodesString != null)
+				for (String node : nodesString.split(", "))
+					nodes.add(node);
+			Set<String> groups = new HashSet<String>();
+			String groupsString = section.getString("Enabled_Permission_Groups");
+			if (groupsString != null)
+				for (String group : groupsString.split(", "))
+					groups.add(group);
+			Map<Integer, String> params = new HashMap<Integer, String>();
+			String paramsString = section.getString("Enabled_Params");
+			if (paramsString != null)
+				for (String param : paramsString.split(", ")) {
+					String[] s = param.split("@");
+					int index;
+					try {
+						index = Integer.parseInt(s[1]);
+					} catch (Exception e) {
+						if (Settings.isDebugEnabled()) {
+							e.printStackTrace();
 						}
-						if (params.containsKey(index))
-							throw new InvalidSectionException(action, ACTIONS, "is invalid (enabled params duplicate index)");
-						params.put(index, s[0]);
+						throw new InvalidSectionException(action, ACTIONS, "is invalid (enabled params list format)");
 					}
-				int priority = section.getInt("Priority");
-				boolean translateColorCodes = section.getBoolean("Translate_Color_Codes");
-				if (type == Type.COMMAND) {
-					String command = section.getString("Command");
-					if (command == null)
-						throw new InvalidSectionException(action, ACTIONS, "is invalid (command is null)");
-					Executor executor = Executor.fromName(section.getString("Executor"));
-					if (executor == null)
-						throw new InvalidSectionException(action, ACTIONS, "is invalid (unknown executor)");
-					this.actions.add(new CommandAction(action, worlds, nodes, groups, params, priority, translateColorCodes, StringUtils.removeStart(command, "/"), executor, section.getBoolean("Grant_Permission")));
-				} else if (type == Type.MESSAGE) {
-					String text;
-					if (section.isList("Text")) {
-						List<String> lines = section.getStringList("Text");
-						if (lines == null || lines.size() == 0)
-							throw new InvalidSectionException(action, ACTIONS, "is invalid (text is null)");
-						StringBuilder b = new StringBuilder();
-						for (String line : lines) {
-							if (b.length() > 0)
-								b.append("\n");
-							b.append(line);
-						}
-						text = b.toString();
-					} else {
-						text = section.getString("Text");
-						if (text == null)
-							throw new InvalidSectionException(action, ACTIONS, "is invalid (text is null)");
-					}
-					this.actions.add(new MessageAction(action, worlds, nodes, groups, params, priority, translateColorCodes, ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(text)), section.getBoolean("Broadcast")));
+					if (params.containsKey(index))
+						throw new InvalidSectionException(action, ACTIONS, "is invalid (enabled params duplicate index)");
+					params.put(index, s[0]);
 				}
+			int priority = section.getInt("Priority");
+			boolean translateColorCodes = section.getBoolean("Translate_Color_Codes");
+			if (type == Type.COMMAND) {
+				String command = section.getString("Command");
+				if (command == null)
+					throw new InvalidSectionException(action, ACTIONS, "is invalid (command is null)");
+				Executor executor = Executor.fromName(section.getString("Executor"));
+				if (executor == null)
+					throw new InvalidSectionException(action, ACTIONS, "is invalid (unknown executor)");
+				this.actions.add(new CommandAction(action, worlds, nodes, groups, params, priority, translateColorCodes, StringUtils.removeStart(command, "/"), executor, section.getBoolean("Grant_Permission")));
+			} else if (type == Type.MESSAGE) {
+				String text;
+				if (section.isList("Text")) {
+					List<String> lines = section.getStringList("Text");
+					if (lines == null || lines.size() == 0)
+						throw new InvalidSectionException(action, ACTIONS, "is invalid (text is null)");
+					StringBuilder b = new StringBuilder();
+					for (String line : lines) {
+						if (b.length() > 0)
+							b.append("\n");
+						b.append(line);
+					}
+					text = b.toString();
+				} else {
+					text = section.getString("Text");
+					if (text == null)
+						throw new InvalidSectionException(action, ACTIONS, "is invalid (text is null)");
+				}
+				this.actions.add(new MessageAction(action, worlds, nodes, groups, params, priority, translateColorCodes, ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(text)), section.getBoolean("Broadcast")));
 			}
 		}
 		executionOrder = new ArrayList<String>();
 		String executionOrderString = generalSettings.getString("Execution_Order");
-		if (executionOrderString != null)
-			for (String action : executionOrderString.split(", "))
-				if (!this.actions.contains(action))
-					throw new InvalidValueException("Execution_Order", GENERAL_SETTINGS, "contains an unkown action name");
-				else
-					executionOrder.add(action);
+		if (executionOrderString == null)
+			throw new InvalidValueException("Execution_Order", GENERAL_SETTINGS, "is invalid (order is null)");
+		for (String action : executionOrderString.split(", "))
+			if (!this.actions.contains(action))
+				throw new InvalidValueException("Execution_Order", GENERAL_SETTINGS, "contains an unkown action name");
+			else
+				executionOrder.add(action);
 		ConfigurationSection permission = PERMISSION.getConfigurationSection(c, false);
 		VaultHook v = SimpleAlias.getVaultHook();
 		if (permission != null) {
@@ -654,5 +653,93 @@ public final class Alias implements Nameable, Executable {
 
 	public AliasCommand getCommand() {
 		return command;
+	}
+
+	public String getDetails() {
+		StringBuilder b = new StringBuilder();
+		b.append("\n§r §8\u25A9 §7§lDescription: §a" + description);
+		b.append("\n§r §8\u25A9 §7§lExecutable as Console: §a" + executableAsConsole);
+		if (!enabledWorlds.isEmpty())
+			b.append("\n§r §8\u25A9 §7§lEnabled Worlds: §a" + StringUtils.join(enabledWorlds, ", "));
+		b.append("\n§r §8\u25A9 §7§lUsage Check:");
+		b.append("\n§r  §3\u2022 §b§lEnabled: §a" + usageCheckEnabled);
+		if (usageCheckEnabled) {
+			b.append("\n§r  §3\u2022 §b§lMin Params: §a" + usageCheckMinParams);
+			b.append("\n§r  §3\u2022 §b§lMax Params: §a" + usageCheckMaxParams);
+			b.append("\n§r  §3\u2022 §b§lMessage: §r" + usageCheckMessage);
+		}
+		b.append("\n§r §8\u25A9 §7§lActions:");
+		for (Action action : actions) {
+			b.append("\n§r  §3\u2022 §b§l" + action.getName() + ":");
+			Type t = action.getType();
+			b.append("\n§r    §1\u25BB §9§lType: §a" + t.name());
+			Set<String> actionEnabledWorlds = action.getEnabledWorlds();
+			if (!actionEnabledWorlds.isEmpty())
+				b.append("\n§r    §1\u25BB §9§lEnabled Worlds: §a" + StringUtils.join(actionEnabledWorlds, ", "));
+			Set<String> actionEnabledPermissionNodes = action.getEnabledPermissionNodes();
+			if (!actionEnabledPermissionNodes.isEmpty())
+				b.append("\n§r    §1\u25BB §9§lEnabled Permission Nodes: §a" + StringUtils.join(actionEnabledPermissionNodes, ", "));
+			Set<String> actionEnabledPermissionGroups = action.getEnabledPermissionGroups();
+			if (!actionEnabledPermissionGroups.isEmpty())
+				b.append("\n§r    §1\u25BB §9§lEnabled Permission Groups: §a" + StringUtils.join(actionEnabledPermissionGroups, ", "));
+			Map<Integer, String> enabledParams = action.getEnabledParams();
+			if (!enabledParams.isEmpty()) {
+				String enabledParamsString = "";
+				for (Entry<Integer, String> e : enabledParams.entrySet()) {
+					if (enabledParamsString.length() > 0) {
+						enabledParamsString += ", ";
+					}
+					enabledParamsString += e.getValue() + "@" + e.getKey();
+				}
+				b.append("\n§r    §1\u25BB §9§lEnabled Params: §a" + enabledParamsString);
+			}
+			b.append("\n§r    §1\u25BB §9§lPriority: §a" + action.getPriority());
+			b.append("\n§r    §1\u25BB §9§lTranslate Color Codes: §a" + action.getTranslateColorCodes());
+			if(t == Type.MESSAGE) {
+				MessageAction message = (MessageAction) action;
+				b.append("\n§r    §1\u25BB §9§lText: §r" + message.getText());
+				b.append("\n§r    §1\u25BB §9§lBroadcast: §a" + message.getBroadcast());
+			} else {
+				CommandAction command = (CommandAction) action;
+				b.append("\n§r    §1\u25BB §9§lCommand: §a" + command.getCommand());
+				b.append("\n§r    §1\u25BB §9§lExecutor: §a" + command.getExecutor().name());
+				b.append("\n§r    §1\u25BB §9§lGrant Permission: §a" + command.getGrantPermission());
+			}
+		}
+		b.append("\n§r §8\u25A9 §7§lExecution Order: §a" + StringUtils.join(executionOrder, ", "));
+		b.append("\n§r §8\u25A9 §7§lPermission:");
+		b.append("\n§r   §3\u2022 §b§lEnabled: §a" + permissionEnabled);
+		if (permissionEnabled) {
+			b.append("\n§r   §3\u2022 §b§lNode: §a" + permissionNode);
+			if (!permissionGroups.isEmpty())
+				b.append("\n§r   §3\u2022 §b§lGroups: §a" + StringUtils.join(permissionGroups, ", "));
+			b.append("\n§r   §3\u2022 §b§lMessage: §r" + permissionMessage);
+		}
+		b.append("\n§r §8\u25A9 §7§lDelay:");
+		b.append("\n§r   §3\u2022 §b§lEnabled: §a" + delayEnabled);
+		if (delayEnabled) {
+			b.append("\n§r   §3\u2022 §b§lCancel on Move: §a" + delayCancelOnMove);
+			b.append("\n§r   §3\u2022 §b§lDuration: §a" + delayDuration);
+			b.append("\n§r   §3\u2022 §b§lMessage: §r" + delayMessage);
+			b.append("\n§r   §3\u2022 §b§lCancel Message: §r" + delayCancelMessage);
+		}
+		b.append("\n§r §8\u25A9 §7§lCooldown:");
+		b.append("\n§r   §3\u2022 §b§lEnabled: §a" + cooldownEnabled);
+		if (cooldownEnabled) {
+			b.append("\n§r   §3\u2022 §b§lDuration: §a" + cooldownDuration);
+			b.append("\n§r   §3\u2022 §b§lMessage: §r" + cooldownMessage);
+		}
+		b.append("\n§r §8\u25A9 §7§lCost:");
+		b.append("\n§r   §3\u2022 §b§lEnabled: §a" + costEnabled);
+		if (costEnabled) {
+			b.append("\n§r   §3\u2022 §b§lAmount: §a" + costAmount);
+			b.append("\n§r   §3\u2022 §b§lMessage: §r" + costMessage);
+		}
+		b.append("\n§r §8\u25A9 §7§lLogging:");
+		b.append("\n§r   §3\u2022 §b§lEnabled: §a" + loggingEnabled);
+		if (loggingEnabled) {
+			b.append("\n§r   §3\u2022 §b§lMessage: §r" + loggingMessage);
+		}
+		return b.toString();
 	}
 }

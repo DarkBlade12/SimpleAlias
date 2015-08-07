@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 import com.darkblade12.simplealias.SimpleAlias;
 
 public final class CommandHelpPage {
-	private static final String HEADER = SimpleAlias.PREFIX + "§eHelp page for the §6<label> §ecommand";
+	private static final String HEADER = SimpleAlias.PREFIX + "§eHelp page for the §6<label> §ecommand:";
 	private static final String FOOTER = "§8§m--------------------§8[§7Page <current_page> §7of §6§l<page_amount>§8]§m---------------------";
 	private static final String COMMAND_FORMAT = "§a\u2022 <command>\n  §7\u25BB <description>\n  §7\u25BB Permission: §2<permission>";
 	private CommandHandler handler;

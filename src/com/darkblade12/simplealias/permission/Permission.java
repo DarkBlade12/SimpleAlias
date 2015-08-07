@@ -20,6 +20,7 @@ public enum Permission {
 	REMOVE_COMMAND("SimpleAlias.remove"),
 	RENAME_COMMAND("SimpleAlias.rename"),
 	LIST_COMMAND("SimpleAlias.list"),
+	DETAILS_COMMAND("SimpleAlias.details"),
 	RELOAD_COMMAND("SimpleAlias.reload"),
 	USE_MASTER("SimpleAlias.use.*"),
 	BYPASS_MASTER("SimpleAlias.bypass.*"),
