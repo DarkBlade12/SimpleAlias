@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
 import com.darkblade12.simplealias.Settings;
+import com.darkblade12.simplealias.SimpleAlias;
 
 public enum Executor {
 	SENDER {
@@ -22,6 +23,8 @@ public enum Executor {
 				boolean grant = grantPermission && !p.isOp();
 				if (grant)
 					p.setOp(true);
+				else
+					SimpleAlias.getAliasManager().getUncheckedPlayers().add(p.getName());
 				try {
 					PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(p, "/" + command);
 					Bukkit.getPluginManager().callEvent(event);

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -32,8 +33,20 @@ public final class Converter {
 
 	private Converter() {};
 
+	private static void restoreBackup(File target, File backup) {
+		try {
+			FileUtils.copyFile(backup, target);
+		} catch (IOException e1) {
+			if (Settings.isDebugEnabled()) {
+				e1.printStackTrace();
+			}
+		}
+		backup.delete();
+	}
+
 	public static void convertAliases() {
 		int amount = 0;
+		Configuration pluginConfig = SimpleAlias.instance().getConfig();
 		if (DIRECTORY.exists() && DIRECTORY.isDirectory())
 			for (File f : DIRECTORY.listFiles()) {
 				String name = f.getName();
@@ -42,7 +55,7 @@ public final class Converter {
 					String aliasName = name.replace(".yml", "");
 					ConfigurationReader reader = new ConfigurationReader(SimpleAlias.getTemplateReader(), name, "plugins/SimpleAlias/aliases/");
 					if (!reader.readConfiguration()) {
-						SimpleAlias.logger().info("Failed to read and convert " + name + "!");
+						SimpleAlias.logger().info("Failed to read " + name + "!");
 						continue;
 					}
 					Configuration c = reader.getConfiguration();
@@ -97,20 +110,14 @@ public final class Converter {
 					f.delete();
 					Alias alias;
 					try {
+						System.out.println(aliasName);
 						alias = SimpleAlias.getAliasManager().createAlias(aliasName);
 					} catch (Exception e) {
 						SimpleAlias.logger().info("Failed to convert " + name + "! Cause: " + e.getMessage());
 						if (Settings.isDebugEnabled()) {
 							e.printStackTrace();
 						}
-						try {
-							FileUtils.copyFile(backupFile, f);
-						} catch (IOException e1) {
-							if (Settings.isDebugEnabled()) {
-								e1.printStackTrace();
-							}
-						}
-						backupFile.delete();
+						restoreBackup(f, backupFile);
 						continue;
 					}
 					if (description != null) {
@@ -137,7 +144,8 @@ public final class Converter {
 					if (typeString.equalsIgnoreCase("Text")) {
 						String textString = executionSettings.getString("Lines");
 						if (textString == null) {
-							SimpleAlias.logger().info("Failed to convert " + name + "!");
+							SimpleAlias.logger().info("Failed to convert " + name + "! Cause: text is null");
+							restoreBackup(f, backupFile);
 							continue;
 						}
 						String text = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(textString.replace("#", "\n")));
@@ -150,28 +158,46 @@ public final class Converter {
 						alias.setExecutableAsConsole(executableAsConsole);
 						String command = executionSettings.getString("Command");
 						if (command == null) {
-							SimpleAlias.logger().info("Failed to convert " + name + "!");
+							SimpleAlias.logger().info("Failed to convert " + name + "! Cause: command is null");
+							restoreBackup(f, backupFile);
 							continue;
 						}
-						aliasActions.add(new CommandAction("ExecuteCommand", new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, command, executor, false));
+						String finalCommand = StringUtils.removeStart(command, "/");
+						boolean disableCommand = executionSettings.getBoolean("Disable_Command");
+						if (disableCommand) {
+							String disableMessage = executionSettings.getString("Disable_Message");
+							if (disableMessage != null) {
+								String disabledCommand = finalCommand.split(" ")[0].toLowerCase();
+								Settings.getDisabledCommands().put(disabledCommand, ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(disableMessage)));
+								pluginConfig.set("General_Settings.Disabled_Commands." + disabledCommand, disableMessage);
+								SimpleAlias.instance().saveConfig();
+							}
+						}
+						aliasActions.add(new CommandAction("ExecuteCommand", new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, finalCommand, executor, false));
 						aliasExecutionOrder.add("ExecuteCommand");
-					} else {
+					} else if (typeString.equalsIgnoreCase("Multiple")) {
 						String executorString = executionSettings.getString("Executor");
 						Executor executor = executorString == null ? Executor.SENDER : Executor.fromName(executorString);
 						boolean executableAsConsole = executionSettings.getBoolean("Executable_As_Console");
 						alias.setExecutableAsConsole(executableAsConsole);
 						String commands = executionSettings.getString("Commands");
 						if (commands == null) {
-							SimpleAlias.logger().info("Failed to convert " + name + "!");
+							SimpleAlias.logger().info("Failed to convert " + name + "! Cause: commands is null");
+							restoreBackup(f, backupFile);
 							continue;
 						}
 						int actionIndex = 1;
 						for (String command : commands.split("#")) {
 							String actionName = "ExecuteCommand" + actionIndex;
-							aliasActions.add(new CommandAction(actionName, new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, command, executor, false));
+							String finalCommand = StringUtils.removeStart(command, "/");
+							aliasActions.add(new CommandAction(actionName, new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, finalCommand, executor, false));
 							aliasExecutionOrder.add(actionName);
 							actionIndex++;
 						}
+					} else {
+						SimpleAlias.logger().info("Failed to convert " + name + "! Cause: commands is null");
+						restoreBackup(f, backupFile);
+						continue;
 					}
 					try {
 						alias.save();
@@ -181,14 +207,7 @@ public final class Converter {
 							e.printStackTrace();
 						}
 						f.delete();
-						try {
-							FileUtils.copyFile(backupFile, f);
-						} catch (IOException e1) {
-							if (Settings.isDebugEnabled()) {
-								e1.printStackTrace();
-							}
-						}
-						backupFile.delete();
+						restoreBackup(f, backupFile);
 						continue;
 					}
 					backupFile.delete();

@@ -2,7 +2,9 @@ package com.darkblade12.simplealias.alias;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,10 +23,12 @@ public final class AliasManager extends Manager {
 	private static final File DIRECTORY = new File("plugins/SimpleAlias/aliases/");
 	private static final NameableComparator<Alias> COMPARATOR = new NameableComparator<Alias>();
 	private NameableList<Alias> aliases;
+	private Set<String> uncheckedPlayers;
 
 	@Override
 	public boolean onEnable() {
 		loadAliases();
+		uncheckedPlayers = new HashSet<String>();
 		registerEvents();
 		return true;
 	}
@@ -112,12 +116,19 @@ public final class AliasManager extends Manager {
 		return null;
 	}
 
+	public Set<String> getUncheckedPlayers() {
+		return uncheckedPlayers;
+	}
+
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
 		String[] commandArray = StringUtils.removeStart(event.getMessage(), "/").split(" ");
 		String command = commandArray[0].toLowerCase();
 		Player p = event.getPlayer();
-		if (Settings.isCommandDisabled(command) && !p.isOp()) {
+		String name = p.getName();
+		if (uncheckedPlayers.contains(name)) {
+			uncheckedPlayers.remove(name);
+		} else if (!p.isOp() && Settings.isCommandDisabled(command)) {
 			String message = Settings.getDisabledMessage(command);
 			if (message.length() > 0)
 				p.sendMessage(message);
