@@ -15,3 +15,14 @@ General_Settings:
  
  # Determines whether the converter for old alias configs is enabled
  Converter_Enabled: false
+ 
+ # The list below indicates the blocked commands by this plugin
+ # This is useful if you want that a certain alias is used instead of the original command
+ # You can add them by making a section like this: '<command>: <message>'
+ # The examples below are disabled, in order to enable them simply remove the '#'
+ # Color codes starting with '&' and unicode symbols will be translated
+ Disabled_Commands:
+  
+  # plugins: 'Unknown Command. Type "/help" for help.'
+  
+  # time: 'Unknown Command. Type "/help" for help.'

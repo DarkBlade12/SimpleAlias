@@ -5,6 +5,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.StringUtils;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+
 import com.darkblade12.simplealias.Settings;
 import com.darkblade12.simplealias.SimpleAlias;
 import com.darkblade12.simplealias.manager.Manager;
@@ -19,6 +25,7 @@ public final class AliasManager extends Manager {
 	@Override
 	public boolean onEnable() {
 		loadAliases();
+		registerEvents();
 		return true;
 	}
 
@@ -30,6 +37,7 @@ public final class AliasManager extends Manager {
 			if (!a.getCommand().unregister())
 				l.warning("Failed to unregister alias '" + a.getName() + "' from the commands!");
 		}
+		unregisterAll();
 	}
 
 	private void loadAliases() {
@@ -44,7 +52,7 @@ public final class AliasManager extends Manager {
 						aliases.add(new Alias(name.substring(0, index)));
 					} catch (Exception e) {
 						l.info("Failed to load alias '" + name + "'. Cause: " + e.getMessage());
-						if(Settings.isDebugEnabled()) {
+						if (Settings.isDebugEnabled()) {
 							e.printStackTrace();
 						}
 					}
@@ -102,5 +110,18 @@ public final class AliasManager extends Manager {
 				return a;
 		}
 		return null;
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+		String[] commandArray = StringUtils.removeStart(event.getMessage(), "/").split(" ");
+		String command = commandArray[0].toLowerCase();
+		Player p = event.getPlayer();
+		if (Settings.isCommandDisabled(command) && !p.isOp()) {
+			String message = Settings.getDisabledMessage(command);
+			if (message.length() > 0)
+				p.sendMessage(message);
+			event.setCancelled(true);
+		}
 	}
 }
