@@ -11,8 +11,8 @@ import com.darkblade12.simplealias.alias.action.Type;
 import com.darkblade12.simplealias.util.ColorCode;
 
 public final class MessageAction extends Action {
-	private final String text;
-	private final boolean broadcast;
+	private String text;
+	private boolean broadcast;
 
 	public MessageAction(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups, Map<Integer, String> enabledParams, int priority, boolean translateColorCodes, String text, boolean broadcast) {
 		super(name, enabledWorlds, enabledPermissionNodes, enabledPermissionGroups, enabledParams, priority, translateColorCodes);
@@ -27,6 +27,14 @@ public final class MessageAction extends Action {
 			Bukkit.broadcastMessage(message);
 		else
 			sender.sendMessage(message);
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public void setBroadcast(boolean broadcast) {
+		this.broadcast = broadcast;
 	}
 
 	@Override

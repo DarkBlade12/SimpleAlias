@@ -11,9 +11,9 @@ import com.darkblade12.simplealias.alias.action.Type;
 import com.darkblade12.simplealias.util.ColorCode;
 
 public final class CommandAction extends Action {
-	private final String command;
-	private final Executor executor;
-	private final boolean grantPermission;
+	private String command;
+	private Executor executor;
+	private boolean grantPermission;
 
 	public CommandAction(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups, Map<Integer, String> enabledParams, int priority, boolean translateColorCodes, String command, Executor executor, boolean grantPermission) {
 		super(name, enabledWorlds, enabledPermissionNodes, enabledPermissionGroups, enabledParams, priority, translateColorCodes);
@@ -25,6 +25,18 @@ public final class CommandAction extends Action {
 	@Override
 	public void execute(CommandSender sender, String[] params) {
 		executor.dispatchCommand(sender, applyReplacement(command, sender, translateColorCodes ? ColorCode.translateAlternateColorCodes('&', params) : params), grantPermission);
+	}
+
+	public void setCommand(String command) {
+		this.command = command;
+	}
+
+	public void setExecutor(Executor executor) {
+		this.executor = executor;
+	}
+
+	public void setGrantPermission(boolean grantPermission) {
+		this.grantPermission = grantPermission;
 	}
 
 	@Override

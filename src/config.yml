@@ -55,3 +55,19 @@ General_Settings:
   costme: "General_Settings.Cost.Message"
   logen: "General_Settings.Logging.Enabled"
   logme: "General_Settings.Logging.Message"
+  
+ # The section below contains abbreviated names for action settings
+ # You can add them by making a section like this: '<abbreviation>: <setting_name/setting_path>
+ Action_Setting_Abbreviations:
+  
+  enwo: "Enabled_Worlds"
+  enpermno: "Enabled_Permission_Nodes"
+  enpermgr: "Enabled_Permission_Groups"
+  enpa: "Enabled_Params"
+  prio: "Priority"
+  trcc: "Translate_Color_Codes"
+  comm: "Command"
+  exec: "Executor"
+  gperm: "Grant_Permission"
+  txt: "Text"
+  bcast: "Broadcast"

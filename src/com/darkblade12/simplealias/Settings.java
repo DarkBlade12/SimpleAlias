@@ -10,6 +10,7 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 
 import com.darkblade12.simplealias.alias.Setting;
+import com.darkblade12.simplealias.alias.action.ActionSetting;
 import com.darkblade12.simplealias.section.IndependantConfigurationSection;
 import com.darkblade12.simplealias.section.exception.InvalidValueException;
 import com.darkblade12.simplealias.section.exception.SectionNotFoundException;
@@ -18,6 +19,7 @@ public final class Settings {
 	private static final IndependantConfigurationSection GENERAL_SETTINGS = new IndependantConfigurationSection("General_Settings");
 	private static final IndependantConfigurationSection DISABLED_COMMANDS = new IndependantConfigurationSection(GENERAL_SETTINGS, "Disabled_Commands");
 	private static final IndependantConfigurationSection SETTING_ABBREVIATIONS = new IndependantConfigurationSection(GENERAL_SETTINGS, "Setting_Abbreviations");
+	private static final IndependantConfigurationSection ACTION_SETTING_ABBREVIATIONS = new IndependantConfigurationSection(GENERAL_SETTINGS, "Action_Setting_Abbreviations");
 	private static boolean debugEnabled;
 	private static boolean uncommentedTemplate;
 	private static boolean converterEnabled;
@@ -60,6 +62,22 @@ public final class Settings {
 						SimpleAlias.logger().info("Skipping setting abbreviation '" + abbreviation + "'. Cause: setting name/path is invalid");
 					} else {
 						Setting.addNameEntry(abbreviation, s);
+					}
+				}
+			}
+		}
+		ConfigurationSection actionSettingAbbreviations = ACTION_SETTING_ABBREVIATIONS.getConfigurationSection(c, false);
+		if (actionSettingAbbreviations != null) {
+			for (String abbreviation : actionSettingAbbreviations.getKeys(false)) {
+				String setting = actionSettingAbbreviations.getString(abbreviation);
+				if (setting == null) {
+					SimpleAlias.logger().info("Skipping action setting abbreviation '" + abbreviation + "'. Cause: setting name/path is null");
+				} else {
+					ActionSetting s = ActionSetting.fromName(setting);
+					if (s == null) {
+						SimpleAlias.logger().info("Skipping action setting abbreviation '" + abbreviation + "'. Cause: setting name/path is invalid");
+					} else {
+						ActionSetting.addNameEntry(abbreviation, s);
 					}
 				}
 			}

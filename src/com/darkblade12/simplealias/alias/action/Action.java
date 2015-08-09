@@ -1,7 +1,6 @@
 package com.darkblade12.simplealias.alias.action;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -25,12 +24,12 @@ public abstract class Action implements Nameable, Executable, Comparable<Action>
 	private static final Pattern PARAMS_PATTERN = Pattern.compile("<params@\\d+>|<params@\\d?-\\d+>|<params@\\d+-\\d?>");
 	private static final String REPLACE_REGEX = "\\s?<sender_name>|\\s?<params>|\\s?<params@\\d+>|\\s?<params@\\d?-\\d+>|\\s?<params@\\d+-\\d?>|\\s?<world>|\\s?<balance>|\\s?<group>|\\s?<faction>";
 	protected final String name;
-	protected final Set<String> enabledWorlds;
-	protected final Set<String> enabledPermissionNodes;
-	protected final Set<String> enabledPermissionGroups;
-	protected final Map<Integer, String> enabledParams;
-	protected final int priority;
-	protected final boolean translateColorCodes;
+	protected Set<String> enabledWorlds;
+	protected Set<String> enabledPermissionNodes;
+	protected Set<String> enabledPermissionGroups;
+	protected Map<Integer, String> enabledParams;
+	protected int priority;
+	protected boolean translateColorCodes;
 
 	public Action(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups, Map<Integer, String> enabledParams, int priority, boolean translateColorCodes) {
 		this.name = name;
@@ -85,13 +84,37 @@ public abstract class Action implements Nameable, Executable, Comparable<Action>
 		return Integer.compare(priority, a.priority);
 	}
 
+	public void setEnabledWorlds(Set<String> enabledWorlds) {
+		this.enabledWorlds = enabledWorlds;
+	}
+
+	public void setEnabledPermissionNodes(Set<String> enabledPermissionNodes) {
+		this.enabledPermissionNodes = enabledPermissionNodes;
+	}
+
+	public void setEnabledPermissionGroups(Set<String> enabledPermissionGroups) {
+		this.enabledPermissionGroups = enabledPermissionGroups;
+	}
+
+	public void setEnabledParams(Map<Integer, String> enabledParams) {
+		this.enabledParams = enabledParams;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
+	public void setTranslateColorCodes(boolean translateColorCodes) {
+		this.translateColorCodes = translateColorCodes;
+	}
+
 	@Override
 	public String getName() {
 		return this.name;
 	}
 
 	public Set<String> getEnabledWorlds() {
-		return Collections.unmodifiableSet(enabledWorlds);
+		return enabledWorlds;
 	}
 
 	public boolean isEnabled(World w) {
@@ -99,11 +122,11 @@ public abstract class Action implements Nameable, Executable, Comparable<Action>
 	}
 
 	public Set<String> getEnabledPermissionNodes() {
-		return Collections.unmodifiableSet(enabledPermissionNodes);
+		return enabledPermissionNodes;
 	}
 
 	public Set<String> getEnabledPermissionGroups() {
-		return Collections.unmodifiableSet(enabledPermissionGroups);
+		return enabledPermissionGroups;
 	}
 
 	public boolean isEnabled(Player p) {
@@ -123,7 +146,7 @@ public abstract class Action implements Nameable, Executable, Comparable<Action>
 	}
 
 	public Map<Integer, String> getEnabledParams() {
-		return Collections.unmodifiableMap(enabledParams);
+		return enabledParams;
 	}
 
 	public boolean isEnabled(String[] params) {

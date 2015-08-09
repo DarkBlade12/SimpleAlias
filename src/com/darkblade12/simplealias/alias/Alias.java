@@ -164,6 +164,8 @@ public final class Alias implements Nameable, Executable {
 			if (paramsString != null)
 				for (String param : paramsString.split(", ")) {
 					String[] s = param.split("@");
+					if(s.length != 2)
+						throw new InvalidSectionException(action, ACTIONS, "is invalid (invalid format in 'Enabled_Params')");
 					int index;
 					try {
 						index = Integer.parseInt(s[1]);
@@ -171,7 +173,7 @@ public final class Alias implements Nameable, Executable {
 						if (Settings.isDebugEnabled()) {
 							e.printStackTrace();
 						}
-						throw new InvalidSectionException(action, ACTIONS, "is invalid (invalid 'Enabled_Params' format)");
+						throw new InvalidSectionException(action, ACTIONS, "is invalid (invalid index in 'Enabled_Params')");
 					}
 					if (params.containsKey(index))
 						throw new InvalidSectionException(action, ACTIONS, "is invalid (duplicate index in 'Enabled_Params')");
