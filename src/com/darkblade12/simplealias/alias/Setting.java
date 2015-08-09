@@ -25,7 +25,7 @@ public enum Setting {
 	COOLDOWN_DURATION("General_Settings.Cooldown.Duration", Integer.class),
 	COOLDOWN_MESSAGE("General_Settings.Cooldown.Message", String.class),
 	COST_ENABLED("General_Settings.Cost.Enabled", Boolean.class),
-	COST_AMOUNT("General_Settings.Cost.Amount", Integer.class),
+	COST_AMOUNT("General_Settings.Cost.Amount", Double.class),
 	COST_MESSAGE("General_Settings.Cost.Message", String.class),
 	LOGGING_ENABLED("General_Settings.Logging.Enabled", Boolean.class),
 	LOGGING_MESSAGE("General_Settings.Logging.Message", String.class);
@@ -46,9 +46,9 @@ public enum Setting {
 			NAME_MAP.put(s.path.toLowerCase(), s);
 		}
 	}
-	
+
 	public static void addNameEntry(String name, Setting setting) {
-		if(name != null && setting != null) {
+		if (name != null && setting != null) {
 			NAME_MAP.put(name.toLowerCase(), setting);
 		}
 	}

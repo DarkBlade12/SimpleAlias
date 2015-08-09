@@ -45,7 +45,7 @@ public final class AliasManager extends Manager {
 	}
 
 	private void loadAliases() {
-		aliases = new NameableList<Alias>();
+		aliases = new NameableList<Alias>(true);
 		Logger l = SimpleAlias.logger();
 		if (DIRECTORY.exists() && DIRECTORY.isDirectory())
 			for (File f : DIRECTORY.listFiles()) {

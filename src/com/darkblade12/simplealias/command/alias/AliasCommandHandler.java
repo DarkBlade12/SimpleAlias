@@ -16,6 +16,7 @@ public final class AliasCommandHandler extends CommandHandler {
 		register(MessageCommand.class);
 		register(RemoveCommand.class);
 		register(RenameCommand.class);
+		register(SetCommand.class);
 		register(ListCommand.class);
 		register(DetailsCommand.class);
 		register(ReloadCommand.class);

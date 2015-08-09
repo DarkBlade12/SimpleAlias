@@ -63,14 +63,32 @@ public final class VaultHook extends Hook<Vault> {
 		return isPermissionEnabled() && permission.hasGroupSupport();
 	}
 
+	public boolean hasGroup(String name) {
+		if (!hasPermissionGroupSupport())
+			return false;
+		for (String group : permission.getGroups())
+			if (group.equalsIgnoreCase(name))
+				return true;
+		return false;
+	}
+
+	public String getExactGroupName(String name) {
+		if (!hasPermissionGroupSupport())
+			return null;
+		for (String group : permission.getGroups())
+			if (group.equalsIgnoreCase(name))
+				return group;
+		return null;
+	}
+
 	public String getPrimaryGroup(Player p) {
-		String group = isPermissionEnabled() && hasPermissionGroupSupport() ? permission.getPrimaryGroup(p) : null;
+		String group = hasPermissionGroupSupport() ? permission.getPrimaryGroup(p) : null;
 		return group == null ? "N/A" : null;
 	}
 
 	public Set<String> getGroups(Player p) {
 		Set<String> groups = new HashSet<String>();
-		if (isPermissionEnabled() && hasPermissionGroupSupport()) {
+		if (hasPermissionGroupSupport()) {
 			String[] groupArray = permission.getPlayerGroups(p);
 			if (groupArray != null)
 				for (String group : groupArray)
@@ -80,11 +98,11 @@ public final class VaultHook extends Hook<Vault> {
 	}
 
 	public boolean isInGroup(Player p, String name) {
-		return isPermissionEnabled() && hasPermissionGroupSupport() ? permission.playerInGroup(p, name) : false;
+		return hasPermissionGroupSupport() ? permission.playerInGroup(p, name) : false;
 	}
 
 	public boolean isInAnyGroup(Player p, Collection<String> names) {
-		if (isPermissionEnabled() && hasPermissionGroupSupport())
+		if (hasPermissionGroupSupport())
 			for (String name : names)
 				if (permission.playerInGroup(p, name))
 					return true;
@@ -92,7 +110,7 @@ public final class VaultHook extends Hook<Vault> {
 	}
 
 	public boolean isInAllGroups(Player p, Collection<String> names) {
-		if (!isPermissionEnabled() || !hasPermissionGroupSupport()) {
+		if (!hasPermissionGroupSupport()) {
 			return false;
 		} else {
 			for (String name : names)

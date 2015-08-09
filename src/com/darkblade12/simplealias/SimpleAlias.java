@@ -51,7 +51,7 @@ public final class SimpleAlias extends JavaPlugin {
 			return;
 		}
 		if (vaultHook.onLoad())
-			logger.info("Vault hooked! (Permission installed: " + vaultHook.isPermissionEnabled() + ", Economy installed: " + vaultHook.isEconomyEnabled() + ")");
+			logger.info("Vault hooked! (Permission: " + vaultHook.isPermissionEnabled() + ", Economy: " + vaultHook.isEconomyEnabled() + ")");
 		if (factionsHook.onLoad())
 			logger.info("Factions hooked!");
 		cooldownManager.onEnable();

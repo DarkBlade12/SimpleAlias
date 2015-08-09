@@ -124,7 +124,9 @@ public final class Alias implements Nameable, Executable {
 			if (message != null)
 				usageCheckMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(message));
 		}
-		this.actions = new NameableList<Action>();
+		VaultHook v = SimpleAlias.getVaultHook();
+		boolean vaultGroupsEnabled = v.isEnabled() && v.hasPermissionGroupSupport();
+		this.actions = new NameableList<Action>(true);
 		ConfigurationSection actions = ACTIONS.getConfigurationSection(c);
 		for (String action : actions.getKeys(false)) {
 			if (this.actions.contains(name))
@@ -146,8 +148,12 @@ public final class Alias implements Nameable, Executable {
 			Set<String> groups = new HashSet<String>();
 			String groupsString = section.getString("Enabled_Permission_Groups");
 			if (groupsString != null)
-				for (String group : groupsString.split(", "))
-					groups.add(group);
+				for (String group : groupsString.split(", ")) {
+					String exactGroup = v.getExactGroupName(group);
+					if (vaultGroupsEnabled && exactGroup == null)
+						throw new InvalidSectionException(action, ACTIONS, "is invalid ('Enabled_Permission_Groups' contains an invalid group name)");
+					groups.add(vaultGroupsEnabled ? exactGroup : group);
+				}
 			Map<Integer, String> params = new HashMap<Integer, String>();
 			String paramsString = section.getString("Enabled_Params");
 			if (paramsString != null)
@@ -207,23 +213,25 @@ public final class Alias implements Nameable, Executable {
 			else
 				executionOrder.add(action);
 		ConfigurationSection permission = PERMISSION.getConfigurationSection(c, false);
-		VaultHook v = SimpleAlias.getVaultHook();
+		permissionGroups = new HashSet<String>();
 		if (permission != null) {
 			permissionEnabled = permission.getBoolean("Enabled");
-			if (permissionEnabled) {
-				permissionNode = permission.getString("Node");
-				if (permissionNode == null)
-					throw new InvalidValueException("Node", PERMISSION, "is null");
-				permissionGroups = new HashSet<String>();
-				String permissionGroupsString = permission.getString("Groups");
-				if (permissionGroupsString != null)
-					for (String group : permissionGroupsString.split(", "))
-						permissionGroups.add(group);
-				String message = permission.getString("Message");
-				if (message == null)
-					throw new InvalidValueException("Message", PERMISSION, "is null");
+			permissionNode = permission.getString("Node");
+			if (permissionEnabled && permissionNode == null)
+				throw new InvalidValueException("Node", PERMISSION, "is null");
+			String permissionGroupsString = permission.getString("Groups");
+			if (permissionGroupsString != null)
+				for (String group : permissionGroupsString.split(", ")) {
+					String exactGroup = v.getExactGroupName(group);
+					if (vaultGroupsEnabled && exactGroup == null)
+						throw new InvalidValueException("Groups", PERMISSION, "contains an invalid group name");
+					permissionGroups.add(vaultGroupsEnabled ? exactGroup : group);
+				}
+			String message = permission.getString("Message");
+			if (permissionEnabled && message == null)
+				throw new InvalidValueException("Message", PERMISSION, "is null");
+			if (message != null)
 				permissionMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(message));
-			}
 		}
 		ConfigurationSection delay = DELAY.getConfigurationSection(c, false);
 		if (delay != null) {
@@ -568,6 +576,26 @@ public final class Alias implements Nameable, Executable {
 		this.cooldownMessage = cooldownMessage;
 	}
 
+	public void setCostEnabled(boolean costEnabled) {
+		this.costEnabled = costEnabled;
+	}
+
+	public void setCostAmount(double costAmount) {
+		this.costAmount = costAmount;
+	}
+
+	public void setCostMessage(String costMessage) {
+		this.costMessage = costMessage;
+	}
+
+	public void setLoggingEnabled(boolean loggingEnabled) {
+		this.loggingEnabled = loggingEnabled;
+	}
+
+	public void setLoggingMessage(String loggingMessage) {
+		this.loggingMessage = loggingMessage;
+	}
+
 	@Override
 	public String getName() {
 		return this.name;
@@ -605,7 +633,7 @@ public final class Alias implements Nameable, Executable {
 		return this.usageCheckMessage;
 	}
 
-	public List<Action> getActions() {
+	public NameableList<Action> getActions() {
 		return actions;
 	}
 
@@ -624,6 +652,10 @@ public final class Alias implements Nameable, Executable {
 			}
 		}
 		return Collections.unmodifiableList(enabled);
+	}
+
+	public Action getAction(String name) {
+		return actions.get(name);
 	}
 
 	public boolean hasAction(String name) {

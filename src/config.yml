@@ -24,11 +24,34 @@ General_Settings:
  Disabled_Commands:
   
   # plugins: 'Unknown Command. Type "/help" for help.'
-  
   # time: 'Unknown Command. Type "/help" for help.'
   
  # The section below contains abbreviated names for alias settings
  # You can add them by making a section like this: '<abbreviation>: <setting_name/setting_path>
  Setting_Abbreviations:
  
-  dsc: "General_Settings.Description"
+  desc: "General_Settings.Description"
+  exac: "General_Settings.Executable_As_Console"
+  enwo: "General_Settings.Enabled_Worlds"
+  exor: "General_Settings.Execution_Order"
+  uscen: "General_Settings.Usage_Check.Enabled"
+  uscminp: "General_Settings.Usage_Check.Min_Params"
+  uscmaxp: "General_Settings.Usage_Check.Max_Params"
+  uscme: "General_Settings.Usage_Check.Message"
+  permen: "General_Settings.Permission.Enabled"
+  permno: "General_Settings.Permission.Node"
+  permgr: "General_Settings.Permission.Groups"
+  permme: "General_Settings.Permission.Message"
+  delen: "General_Settings.Delay.Enabled"
+  delcom: "General_Settings.Delay.Cancel_On_Move"
+  deldur: "General_Settings.Delay.Duration"
+  delme: "General_Settings.Delay.Message"
+  delcme: "General_Settings.Delay.Cancel_Message"
+  coolen: "General_Settings.Cooldown.Enabled"
+  cooldur: "General_Settings.Cooldown.Duration"
+  coolme: "General_Settings.Cooldown.Message"
+  costen: "General_Settings.Cost.Enabled"
+  costam: "General_Settings.Cost.Amount"
+  costme: "General_Settings.Cost.Message"
+  logen: "General_Settings.Logging.Enabled"
+  logme: "General_Settings.Logging.Message"
