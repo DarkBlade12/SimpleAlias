@@ -59,7 +59,7 @@ public final class SetCommand implements ICommand {
 					for (String world : worlds) {
 						World w = Bukkit.getWorld(world);
 						if (w == null) {
-							sender.sendMessage(SimpleAlias.PREFIX + "§cThe value §e" + value + " §cis invalid for the setting §6" + path + "§c, because this world doesn't exist!");
+							sender.sendMessage(SimpleAlias.PREFIX + "§cThe value §e" + value + " §cis invalid for the setting §6" + path + "§c, because the world §4" + world + " §cdoesn't exist!");
 							return;
 						}
 						enabledWorlds.add(w.getName());
@@ -72,7 +72,7 @@ public final class SetCommand implements ICommand {
 					for (String action : actions) {
 						Action aliasAction = a.getAction(action);
 						if (aliasAction == null) {
-							sender.sendMessage(SimpleAlias.PREFIX + "§cThe value §e" + value + " §cis invalid for the setting §6" + path + "§c, because this action doesn't exist!");
+							sender.sendMessage(SimpleAlias.PREFIX + "§cThe value §e" + value + " §cis invalid for the setting §6" + path + "§c, because the action §4" + action + " §cdoesn't exist!");
 							return;
 						}
 						executionOrder.add(aliasAction.getName());

@@ -1,4 +1,5 @@
 # This section contains all general settings for the alias
+# Remove the '#' before a setting (for example 'Enabled_Worlds') to enable it
 General_Settings:
 
  # This is the description of this alias
@@ -7,7 +8,6 @@ General_Settings:
  # This is the list of worlds where this alias is enabled
  # This check can be bypassed with SimpleAlias.bypass.enabledworlds
  # Format: <world_name>(, <world_name>...)
- # Remove the '#' before 'Enabled_Worlds:' to enable this setting
  # Enabled_Worlds: world
  
  # Determines whether this alias can be executed as console
@@ -39,26 +39,22 @@ General_Settings:
    
    # This is the list of worlds where this action is enabled
    # Format: <world_name>(, <world_name>...)
-   # Remove the '#' before 'Enabled_Worlds:' to enable this setting
    # Enabled_Worlds: world
    
    # This is the list of permission nodes of which the execution player has to have at least one in order to enable this action
    # If this and 'Enabled_Permission_Groups' are not empty, both conditions have to be fullfilled
    # Format: <permission_node>(, <permission_node>...)
-   # Remove the '#' before 'Enabled_Permission_Nodes:' to enable this setting
    # Enabled_Permission_Nodes: Example.node
    
    # This is the list of permission groups of which the execution player has to be in at least one in order to enable this action
    # If this and 'Enabled_Permission_Nodes' are not empty, both conditions have to be fullfilled
    # Format: <group_name>(, <group_name>...)
-   # Remove the '#' before 'Enabled_Permission_Groups:' to enable this setting
    # Enabled_Permission_Groups: ExampleGroup
    
    # This is the list of params which have to match in order to enable this action
    # Please note that you can't add more than one param with the same index
    # Format: <param@index>(, <param@index>...)
    # With this example the sender has to type '/<alias> example' in order to enable this action
-   # Remove the '#' before 'Enabled_Params:' to enable this setting
    # Enabled_Params: example@0
    
    # This is the priority of this action
@@ -85,26 +81,21 @@ General_Settings:
    
    # This is the list of worlds where this action is enabled
    # Format: <world_name>(, <world_name>...)
-   # Remove the '#' before 'Enabled_Worlds:' to enable this setting
    # Enabled_Worlds: world
    
    # This is the list of permission nodes of which the execution player has to have at least one in order to enable this action
    # If this and 'Enabled_Permission_Groups' are not empty, both conditions have to be fullfilled
    # Format: <permission_node>(, <permission_node>...)
-   # Remove the '#' before 'Enabled_Permission_Nodes:' to enable this setting
    # Enabled_Permission_Nodes: Example.node
    
    # This is the list of permission groups of which the execution player has to be in at least one in order to enable this action
    # If this and 'Enabled_Permission_Nodes' are not empty, both conditions have to be fullfilled
    # Format: <group_name>(, <group_name>...)
-   # Remove the '#' before 'Enabled_Permission_Groups:' to enable this setting
    # Enabled_Permission_Groups: ExampleGroup
    
    # This is the list of params which have to match in order to enable this action
    # Please note that you can't add more than one param with the same index
    # Format: <param@index>(, <param@index>...)
-   # With this example the sender has to type '/<alias> example' in order to enable this action
-   # Remove the '#' before 'Enabled_Params:' to enable this setting
    # Enabled_Params: example@0
    
    # This is the priority of this action
@@ -148,7 +139,6 @@ General_Settings:
   
   # This is a list of groups that are permitted to use this alias no matter if they have the permission node
   # Format: <group_name>(, <group_name>...)
-  # Remove the '#' before 'Groups:' to enable this setting
   # Groups: ExampleGroup
   
   # This is the message that will be displayed if the sender doesn't have permission

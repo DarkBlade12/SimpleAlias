@@ -104,9 +104,10 @@ public final class Alias implements Nameable, Executable {
 		String enabledWorldsString = generalSettings.getString("Enabled_Worlds");
 		if (enabledWorldsString != null)
 			for (String world : enabledWorldsString.split(", ")) {
-				if (Bukkit.getWorld(world) == null)
+				World w = Bukkit.getWorld(world);
+				if (w == null)
 					throw new InvalidValueException("Enabled_Worlds", GENERAL_SETTINGS, "contains the invalid world name '" + world + "'");
-				enabledWorlds.add(world);
+				enabledWorlds.add(w.getName());
 			}
 		executableAsConsole = generalSettings.getBoolean("Executable_As_Console");
 		ConfigurationSection usageCheck = USAGE_CHECK.getConfigurationSection(c, false);
@@ -138,8 +139,12 @@ public final class Alias implements Nameable, Executable {
 			Set<String> worlds = new HashSet<String>();
 			String worldsString = section.getString("Enabled_Worlds");
 			if (worldsString != null)
-				for (String world : worldsString.split(", "))
-					worlds.add(world);
+				for (String world : worldsString.split(", ")) {
+					World w = Bukkit.getWorld(world);
+					if(w == null)
+						throw new InvalidSectionException(action, ACTIONS, "is invalid ('Enabled_Worlds' contains an invalid world name)");
+					worlds.add(w.getName());
+				}
 			Set<String> nodes = new HashSet<String>();
 			String nodesString = section.getString("Enabled_Permission_Nodes");
 			if (nodesString != null)
