@@ -200,13 +200,13 @@ General_Settings:
   # This is the message that will be displayed if the sender doesn't have enough money
   Message: "&cYou don't have enough money to use this alias! &8(&6<cost_amount>&8)"
 
-# This section contains settings for logging the execution of this alias
-# The execution will only be logged for players
-Logging:
+ # This section contains settings for logging the execution of this alias
+ # The execution will only be logged for players
+ Logging:
 
- # Determines whether logging is enabled
- Enabled: false
+  # Determines whether logging is enabled
+  Enabled: false
  
- # This is the message that will be logged
- # Please note that '<player_name> issued command: <command>' will automatically be logged
- Message: '<alias> was executed by <player_name>'
+  # This is the message that will be logged
+  # Please note that '<player_name> issued command: <command>' will automatically be logged
+  Message: '<alias> was executed by <player_name>'

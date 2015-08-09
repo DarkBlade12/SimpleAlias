@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 
+import com.darkblade12.simplealias.alias.Setting;
 import com.darkblade12.simplealias.section.IndependantConfigurationSection;
 import com.darkblade12.simplealias.section.exception.InvalidValueException;
 import com.darkblade12.simplealias.section.exception.SectionNotFoundException;
@@ -16,6 +17,7 @@ import com.darkblade12.simplealias.section.exception.SectionNotFoundException;
 public final class Settings {
 	private static final IndependantConfigurationSection GENERAL_SETTINGS = new IndependantConfigurationSection("General_Settings");
 	private static final IndependantConfigurationSection DISABLED_COMMANDS = new IndependantConfigurationSection(GENERAL_SETTINGS, "Disabled_Commands");
+	private static final IndependantConfigurationSection SETTING_ABBREVIATIONS = new IndependantConfigurationSection(GENERAL_SETTINGS, "Setting_Abbreviations");
 	private static boolean debugEnabled;
 	private static boolean uncommentedTemplate;
 	private static boolean converterEnabled;
@@ -33,11 +35,31 @@ public final class Settings {
 		ConfigurationSection disabledCommands = DISABLED_COMMANDS.getConfigurationSection(c, false);
 		if (disabledCommands != null) {
 			for (String command : disabledCommands.getKeys(false)) {
+				String finalCommand = StringUtils.removeStart(command.toLowerCase(), "/");
 				String message = disabledCommands.getString(command);
-				if (message != null) {
-					String finalCommand = StringUtils.removeStart(command.toLowerCase(), "/");
-					if (!Settings.disabledCommands.containsKey(finalCommand)) {
+				if (message == null) {
+					SimpleAlias.logger().info("Skipping disabled command '" + finalCommand + "'. Cause: message is null");
+				} else {
+					if (Settings.disabledCommands.containsKey(finalCommand)) {
+						SimpleAlias.logger().info("Skipping disabled command '" + finalCommand + "'. Cause: duplicate entry for this command");
+					} else {
 						Settings.disabledCommands.put(finalCommand, ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(message)));
+					}
+				}
+			}
+		}
+		ConfigurationSection settingAbbreviations = SETTING_ABBREVIATIONS.getConfigurationSection(c, false);
+		if (settingAbbreviations != null) {
+			for (String abbreviation : settingAbbreviations.getKeys(false)) {
+				String setting = settingAbbreviations.getString(abbreviation);
+				if (setting == null) {
+					SimpleAlias.logger().info("Skipping setting abbreviation '" + abbreviation + "'. Cause: setting name/path is null");
+				} else {
+					Setting s = Setting.fromName(setting);
+					if (s == null) {
+						SimpleAlias.logger().info("Skipping setting abbreviation '" + abbreviation + "'. Cause: setting name/path is invalid");
+					} else {
+						Setting.addNameEntry(abbreviation, s);
 					}
 				}
 			}

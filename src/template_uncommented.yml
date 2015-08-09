@@ -59,6 +59,6 @@ General_Settings:
   Amount: 40.0
   Message: "&cYou don't have enough money to use this alias! &8(&6<cost_amount>&8)"
 
-Logging:
- Enabled: false
- Message: '<alias> was executed by <player_name>'
+ Logging:
+  Enabled: false
+  Message: '<alias> was executed by <player_name>'

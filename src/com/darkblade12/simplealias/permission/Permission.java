@@ -19,6 +19,7 @@ public enum Permission {
 	MESSAGE_COMMAND("SimpleAlias.create.message"),
 	REMOVE_COMMAND("SimpleAlias.remove"),
 	RENAME_COMMAND("SimpleAlias.rename"),
+	SET_COMMAND("SimpleAlias.set"),
 	LIST_COMMAND("SimpleAlias.list"),
 	DETAILS_COMMAND("SimpleAlias.details"),
 	RELOAD_COMMAND("SimpleAlias.reload"),

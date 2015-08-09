@@ -51,7 +51,7 @@ public final class Alias implements Nameable, Executable {
 	private static final IndependantConfigurationSection DELAY = new IndependantConfigurationSection(GENERAL_SETTINGS, "Delay");
 	private static final IndependantConfigurationSection COOLDOWN = new IndependantConfigurationSection(GENERAL_SETTINGS, "Cooldown");
 	private static final IndependantConfigurationSection COST = new IndependantConfigurationSection(GENERAL_SETTINGS, "Cost");
-	private static final IndependantConfigurationSection LOGGING = new IndependantConfigurationSection("Logging");
+	private static final IndependantConfigurationSection LOGGING = new IndependantConfigurationSection(GENERAL_SETTINGS, "Logging");
 	private static final PermissionList ENABLED_WORLDS_BYPASS_PERMISSIONS = new PermissionList(Permission.SIMPLEALIAS_MASTER, Permission.BYPASS_MASTER, Permission.BYPASS_ENABLED_WORLDS);
 	private static final PermissionList DELAY_BYPASS_PERMISSIONS = new PermissionList(Permission.SIMPLEALIAS_MASTER, Permission.BYPASS_MASTER, Permission.BYPASS_DELAY);
 	private static final PermissionList COOLDOWN_BYPASS_PERMISSIONS = new PermissionList(Permission.SIMPLEALIAS_MASTER, Permission.BYPASS_MASTER, Permission.BYPASS_COOLDOWN);
@@ -103,15 +103,18 @@ public final class Alias implements Nameable, Executable {
 		enabledWorlds = new HashSet<String>();
 		String enabledWorldsString = generalSettings.getString("Enabled_Worlds");
 		if (enabledWorldsString != null)
-			for (String world : enabledWorldsString.split(", "))
+			for (String world : enabledWorldsString.split(", ")) {
+				if (Bukkit.getWorld(world) == null)
+					throw new InvalidValueException("Enabled_Worlds", GENERAL_SETTINGS, "contains the invalid world name '" + world + "'");
 				enabledWorlds.add(world);
+			}
 		executableAsConsole = generalSettings.getBoolean("Executable_As_Console");
 		ConfigurationSection usageCheck = USAGE_CHECK.getConfigurationSection(c, false);
 		if (usageCheck != null) {
 			usageCheckEnabled = usageCheck.getBoolean("Enabled");
 			usageCheckMinParams = usageCheck.getInt("Min_Params");
 			if (usageCheckEnabled && usageCheckMinParams < 0)
-				throw new InvalidValueException("Min_Params", USAGE_CHECK, "is invalid (lower than 0)");
+				throw new InvalidValueException("Min_Params", USAGE_CHECK, "is lower than 0");
 			usageCheckMaxParams = usageCheck.getInt("Max_Params");
 			if (usageCheckEnabled && usageCheckMaxParams < usageCheckMinParams)
 				throw new InvalidValueException("Max_Params", USAGE_CHECK, "is invalid (lower than 'Min_Params' value)");
@@ -157,10 +160,10 @@ public final class Alias implements Nameable, Executable {
 						if (Settings.isDebugEnabled()) {
 							e.printStackTrace();
 						}
-						throw new InvalidSectionException(action, ACTIONS, "is invalid (enabled params list format)");
+						throw new InvalidSectionException(action, ACTIONS, "is invalid (invalid 'Enabled_Params' format)");
 					}
 					if (params.containsKey(index))
-						throw new InvalidSectionException(action, ACTIONS, "is invalid (enabled params duplicate index)");
+						throw new InvalidSectionException(action, ACTIONS, "is invalid (duplicate index in 'Enabled_Params')");
 					params.put(index, s[0]);
 				}
 			int priority = section.getInt("Priority");
@@ -197,7 +200,7 @@ public final class Alias implements Nameable, Executable {
 		executionOrder = new ArrayList<String>();
 		String executionOrderString = generalSettings.getString("Execution_Order");
 		if (executionOrderString == null)
-			throw new InvalidValueException("Execution_Order", GENERAL_SETTINGS, "is invalid (order is null)");
+			throw new InvalidValueException("Execution_Order", GENERAL_SETTINGS, "is null");
 		for (String action : executionOrderString.split(", "))
 			if (!this.actions.contains(action))
 				throw new InvalidValueException("Execution_Order", GENERAL_SETTINGS, "contains an unkown action name");
@@ -228,14 +231,14 @@ public final class Alias implements Nameable, Executable {
 			delayCancelOnMove = delay.getBoolean("Cancel_On_Move");
 			delayDuration = delay.getInt("Duration");
 			if (delayEnabled && delayDuration < 1)
-				throw new InvalidValueException("Duration", DELAY, "is invalid (lower than 1)");
+				throw new InvalidValueException("Duration", DELAY, "is lower than 1");
 			String message = delay.getString("Message");
 			if (delayEnabled && message == null)
 				throw new InvalidValueException("Message", DELAY, "is null");
 			if (message != null)
 				delayMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(message));
 			String cancelMessage = delay.getString("Cancel_Message");
-			if (delayEnabled && cancelMessage == null)
+			if (delayEnabled && delayCancelOnMove && cancelMessage == null)
 				throw new InvalidValueException("Cancel_Message", DELAY, "is null");
 			if (cancelMessage != null)
 				delayCancelMessage = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(cancelMessage));
@@ -245,7 +248,7 @@ public final class Alias implements Nameable, Executable {
 			cooldownEnabled = cooldown.getBoolean("Enabled");
 			cooldownDuration = cooldown.getInt("Duration");
 			if (cooldownEnabled && cooldownDuration < 1)
-				throw new InvalidValueException("Duration", COOLDOWN, "is invalid (lower than 1)");
+				throw new InvalidValueException("Duration", COOLDOWN, "is lower than 1");
 			String message = cooldown.getString("Message");
 			if (cooldownEnabled && message == null)
 				throw new InvalidValueException("Message", COOLDOWN, "is null");
@@ -257,9 +260,9 @@ public final class Alias implements Nameable, Executable {
 			costEnabled = v.isEnabled() && v.isEconomyEnabled() && cost.getBoolean("Enabled");
 			costAmount = cost.getDouble("Amount");
 			if (costEnabled && costAmount == 0)
-				throw new InvalidValueException("Amount", COST, "is invalid (equals 0)");
+				throw new InvalidValueException("Amount", COST, "is equal to 0");
 			else if (costEnabled && costAmount < 0)
-				throw new InvalidValueException("Amount", COST, "is invalid (lower than 0)");
+				throw new InvalidValueException("Amount", COST, "is lower than 0");
 			String message = cost.getString("Message");
 			if (costEnabled && message == null)
 				throw new InvalidValueException("Message", COST, "is null");
@@ -493,12 +496,28 @@ public final class Alias implements Nameable, Executable {
 		this.executableAsConsole = executableAsConsole;
 	}
 
-	public void setCooldownEnabled(boolean cooldownEnabled) {
-		this.cooldownEnabled = cooldownEnabled;
+	public void setEnabledWorlds(Set<String> enabledWorlds) {
+		this.enabledWorlds = enabledWorlds;
 	}
 
-	public void setCooldownDuration(int cooldownDuration) {
-		this.cooldownDuration = cooldownDuration;
+	public void setExecutionOrder(List<String> executionOrder) {
+		this.executionOrder = executionOrder;
+	}
+
+	public void setUsageCheckEnabled(boolean usageCheckEnabled) {
+		this.usageCheckEnabled = usageCheckEnabled;
+	}
+
+	public void setUsageCheckMinParams(int usageCheckMinParams) {
+		this.usageCheckMinParams = usageCheckMinParams;
+	}
+
+	public void setUsageCheckMaxParams(int usageCheckMaxParams) {
+		this.usageCheckMaxParams = usageCheckMaxParams;
+	}
+
+	public void setUsageCheckMessage(String usageCheckMessage) {
+		this.usageCheckMessage = usageCheckMessage;
 	}
 
 	public void setPermissionEnabled(boolean permissionEnabled) {
@@ -507,6 +526,46 @@ public final class Alias implements Nameable, Executable {
 
 	public void setPermissionNode(String permissionNode) {
 		this.permissionNode = permissionNode;
+	}
+
+	public void setPermissionGroups(Set<String> permissionGroups) {
+		this.permissionGroups = permissionGroups;
+	}
+
+	public void setPermissionMessage(String permissionMessage) {
+		this.permissionMessage = permissionMessage;
+	}
+
+	public void setDelayEnabled(boolean delayEnabled) {
+		this.delayEnabled = delayEnabled;
+	}
+
+	public void setDelayCancelOnMove(boolean delayCancelOnMove) {
+		this.delayCancelOnMove = delayCancelOnMove;
+	}
+
+	public void setDelayDuration(int delayDuration) {
+		this.delayDuration = delayDuration;
+	}
+
+	public void setDelayMessage(String delayMessage) {
+		this.delayMessage = delayMessage;
+	}
+
+	public void setDelayCancelMessage(String delayCancelMessage) {
+		this.delayCancelMessage = delayCancelMessage;
+	}
+
+	public void setCooldownEnabled(boolean cooldownEnabled) {
+		this.cooldownEnabled = cooldownEnabled;
+	}
+
+	public void setCooldownDuration(int cooldownDuration) {
+		this.cooldownDuration = cooldownDuration;
+	}
+
+	public void setCooldownMessage(String cooldownMessage) {
+		this.cooldownMessage = cooldownMessage;
 	}
 
 	@Override
@@ -565,6 +624,10 @@ public final class Alias implements Nameable, Executable {
 			}
 		}
 		return Collections.unmodifiableList(enabled);
+	}
+
+	public boolean hasAction(String name) {
+		return actions.contains(name);
 	}
 
 	public List<String> getExecutionOrder() {

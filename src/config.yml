@@ -16,7 +16,7 @@ General_Settings:
  # Determines whether the converter for old alias configs is enabled
  Converter_Enabled: false
  
- # The list below indicates the blocked commands by this plugin
+ # The section below contains commands which will be disabled by SimpleAlias
  # This is useful if you want that a certain alias is used instead of the original command
  # You can add them by making a section like this: '<command>: <message>'
  # The examples below are disabled, in order to enable them simply remove the '#'
@@ -26,3 +26,9 @@ General_Settings:
   # plugins: 'Unknown Command. Type "/help" for help.'
   
   # time: 'Unknown Command. Type "/help" for help.'
+  
+ # The section below contains abbreviated names for alias settings
+ # You can add them by making a section like this: '<abbreviation>: <setting_name/setting_path>
+ Setting_Abbreviations:
+ 
+  dsc: "General_Settings.Description"
