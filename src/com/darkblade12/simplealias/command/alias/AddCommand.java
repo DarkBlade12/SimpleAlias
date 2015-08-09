@@ -92,7 +92,7 @@ public final class AddCommand implements ICommand {
 					aliasPermissionGroups.addAll(permissionGroups);
 					value = StringUtils.join(permissionGroups, ", ");
 				} else {
-					sender.sendMessage(SimpleAlias.PREFIX + "§cThis action doesn't support the addition of values!");
+					sender.sendMessage(SimpleAlias.PREFIX + "§cThis setting doesn't support the addition of values!");
 					return;
 				}
 				try {

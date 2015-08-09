@@ -29,7 +29,7 @@ import com.darkblade12.simplealias.command.ICommand;
 import com.darkblade12.simplealias.hook.types.VaultHook;
 import com.darkblade12.simplealias.permission.Permission;
 
-@CommandDetails(name = "setaction", params = "<name> <action> <setting> <value>", description = "Removes an existing action from an alias", permission = Permission.SET_ACTION_COMMAND, infiniteParams = true)
+@CommandDetails(name = "setaction", params = "<name> <action> <setting> <value>", description = "Sets the value of an action setting of an alias", permission = Permission.SET_ACTION_COMMAND, infiniteParams = true)
 public final class SetActionCommand implements ICommand {
 	private static final Pattern BOOLEAN_PATTERN = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE);
 
@@ -53,7 +53,10 @@ public final class SetActionCommand implements ICommand {
 					String path = s.getFullPath(actionName);
 					String[] valueArray = (String[]) Arrays.copyOfRange(params, 3, params.length);
 					String value = StringUtils.join(valueArray, " ");
-					if (s == ActionSetting.ENABLED_WORLDS) {
+					if (s == ActionSetting.TYPE) {
+						sender.sendMessage(SimpleAlias.PREFIX + "§cThis setting can't be changed with this command!");
+						return;
+					} else if (s == ActionSetting.ENABLED_WORLDS) {
 						String[] worlds = value.split(", ");
 						Set<String> enabledWorlds = new HashSet<String>();
 						for (String world : worlds) {

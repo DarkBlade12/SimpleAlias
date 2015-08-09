@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum ActionSetting {
+	TYPE("Type", Type.class),
 	ENABLED_WORLDS("Enabled_Worlds", String.class),
 	ENABLED_PERMISSION_NODES("Enabled_Permission_Nodes", String.class),
 	ENABLED_PERMISSION_GROUPS("Enabled_Permission_Groups", String.class),

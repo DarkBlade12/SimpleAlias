@@ -26,6 +26,7 @@ import org.bukkit.scheduler.BukkitTask;
 import com.darkblade12.simplealias.Settings;
 import com.darkblade12.simplealias.SimpleAlias;
 import com.darkblade12.simplealias.alias.action.Action;
+import com.darkblade12.simplealias.alias.action.ActionSetting;
 import com.darkblade12.simplealias.alias.action.Executor;
 import com.darkblade12.simplealias.alias.action.Type;
 import com.darkblade12.simplealias.alias.action.types.CommandAction;
@@ -141,7 +142,7 @@ public final class Alias implements Nameable, Executable {
 			if (worldsString != null)
 				for (String world : worldsString.split(", ")) {
 					World w = Bukkit.getWorld(world);
-					if(w == null)
+					if (w == null)
 						throw new InvalidSectionException(action, ACTIONS, "is invalid ('Enabled_Worlds' contains an invalid world name)");
 					worlds.add(w.getName());
 				}
@@ -164,7 +165,7 @@ public final class Alias implements Nameable, Executable {
 			if (paramsString != null)
 				for (String param : paramsString.split(", ")) {
 					String[] s = param.split("@");
-					if(s.length != 2)
+					if (s.length != 2)
 						throw new InvalidSectionException(action, ACTIONS, "is invalid (invalid format in 'Enabled_Params')");
 					int index;
 					try {
@@ -298,10 +299,9 @@ public final class Alias implements Nameable, Executable {
 
 	public void save() throws Exception {
 		Configuration c = configurationReader.getConfiguration();
-		ConfigurationSection generalSettings = GENERAL_SETTINGS.getConfigurationSection(c);
-		generalSettings.set("Description", description);
+		c.set(Setting.DESCRIPTION.getPath(), description);
 		if (enabledWorlds.isEmpty()) {
-			generalSettings.set("Enabled_Worlds", null);
+			c.set(Setting.ENABLED_WORLDS.getPath(), null);
 		} else {
 			String enabledWorldsString = "";
 			for (String world : enabledWorlds) {
@@ -310,54 +310,51 @@ public final class Alias implements Nameable, Executable {
 				}
 				enabledWorldsString += world;
 			}
-			generalSettings.set("Enabled_Worlds", enabledWorldsString);
+			c.set(Setting.ENABLED_WORLDS.getPath(), enabledWorldsString);
 		}
-		generalSettings.set("Executable_As_Console", executableAsConsole);
-		ConfigurationSection usageCheck = USAGE_CHECK.getConfigurationSection(c, false);
-		usageCheck.set("Enabled", usageCheckEnabled);
-		usageCheck.set("Min_Params", usageCheckMinParams);
-		usageCheck.set("Max_Params", usageCheckMaxParams);
-		usageCheck.set("Message", usageCheckMessage == null ? null : StringEscapeUtils.escapeJava(usageCheckMessage.replace('§', '&')));
-		ConfigurationSection actions = ACTIONS.getConfigurationSection(c, false);
-		if (this.actions.isEmpty()) {
-			generalSettings.set("Actions", null);
-		} else {
-			for (Action action : this.actions) {
-				String name = action.getName();
-				Type type = action.getType();
-				actions.set(name + ".Type", type.name());
-				Set<String> worlds = action.getEnabledWorlds();
-				actions.set(name + ".Enabled_Worlds", worlds.isEmpty() ? null : StringUtils.join(worlds, ", "));
-				Set<String> permissionNodes = action.getEnabledPermissionNodes();
-				actions.set(name + ".Enabled_Permission_Nodes", permissionNodes.isEmpty() ? null : StringUtils.join(permissionNodes, ", "));
-				Set<String> permissionGroups = action.getEnabledPermissionGroups();
-				actions.set(name + ".Enabled_Permission_Groups", permissionGroups.isEmpty() ? null : StringUtils.join(permissionGroups, ", "));
-				Map<Integer, String> params = action.getEnabledParams();
-				if (params.isEmpty()) {
-					actions.set(name + ".Enabled_Params", null);
-				} else {
-					String paramsString = "";
-					for (Entry<Integer, String> param : params.entrySet()) {
-						if (paramsString.length() > 0) {
-							paramsString += ", ";
-						}
-						paramsString += param.getValue() + "@" + param.getKey();
+		c.set(Setting.EXECUTABLE_AS_CONSOLE.getPath(), executableAsConsole);
+		c.set(Setting.USAGE_CHECK_ENABLED.getPath(), usageCheckEnabled);
+		c.set(Setting.USAGE_CHECK_MIN_PARAMS.getPath(), usageCheckMinParams);
+		c.set(Setting.USAGE_CHECK_MAX_PARAMS.getPath(), usageCheckMaxParams);
+		c.set(Setting.USAGE_CHECK_MESSAGE.getPath(), usageCheckMessage == null ? null : StringEscapeUtils.escapeJava(usageCheckMessage.replace('§', '&')));
+		for (Action action : this.actions) {
+			String name = action.getName();
+			Type type = action.getType();
+			c.set(ActionSetting.TYPE.getFullPath(name), type.name());
+			Set<String> worlds = action.getEnabledWorlds();
+			c.set(ActionSetting.ENABLED_WORLDS.getFullPath(name), worlds.isEmpty() ? null : StringUtils.join(worlds, ", "));
+			Set<String> permissionNodes = action.getEnabledPermissionNodes();
+			c.set(ActionSetting.ENABLED_PERMISSION_NODES.getFullPath(name), permissionNodes.isEmpty() ? null : StringUtils.join(permissionNodes, ", "));
+			Set<String> permissionGroups = action.getEnabledPermissionGroups();
+			c.set(ActionSetting.ENABLED_PERMISSION_GROUPS.getFullPath(name), permissionGroups.isEmpty() ? null : StringUtils.join(permissionGroups, ", "));
+			Map<Integer, String> params = action.getEnabledParams();
+			if (params.isEmpty()) {
+				c.set(ActionSetting.ENABLED_PARAMS.getFullPath(name), null);
+			} else {
+				String paramsString = "";
+				for (Entry<Integer, String> param : params.entrySet()) {
+					if (paramsString.length() > 0) {
+						paramsString += ", ";
 					}
-					actions.set(name + ".Enabled_Params", paramsString);
+					paramsString += param.getValue() + "@" + param.getKey();
 				}
-				actions.set(name + ".Priority", action.getPriority());
-				actions.set(name + ".Translate_Color_Codes", action.getTranslateColorCodes());
-				if (type == Type.COMMAND) {
-					CommandAction commandAction = (CommandAction) action;
-					actions.set(name + ".Command", commandAction.getCommand());
-					actions.set(name + ".Executor", commandAction.getExecutor().name());
-					actions.set(name + ".Grant_Permission", commandAction.getGrantPermission());
-				} else {
-					MessageAction messageAction = (MessageAction) action;
-					actions.set(name + ".Text", messageAction.getText().replace('§', '&'));
-					actions.set(name + ".Broadcast", messageAction.getBroadcast());
-				}
+				c.set(ActionSetting.ENABLED_PARAMS.getFullPath(name), paramsString);
 			}
+			c.set(ActionSetting.PRIORITY.getFullPath(name), action.getPriority());
+			c.set(ActionSetting.TRANSLATE_COLOR_CODES.getFullPath(name), action.getTranslateColorCodes());
+			if (type == Type.COMMAND) {
+				CommandAction commandAction = (CommandAction) action;
+				c.set(ActionSetting.COMMAND.getFullPath(name), commandAction.getCommand());
+				c.set(ActionSetting.EXECUTOR.getFullPath(name), commandAction.getExecutor().name());
+				c.set(ActionSetting.GRANT_PERMISSION.getFullPath(name), commandAction.getGrantPermission());
+			} else {
+				MessageAction messageAction = (MessageAction) action;
+				c.set(ActionSetting.TEXT.getFullPath(name), messageAction.getText().replace('§', '&'));
+				c.set(ActionSetting.BROADCAST.getFullPath(name), messageAction.getBroadcast());
+			}
+		}
+		ConfigurationSection actions = ACTIONS.getConfigurationSection(c, false);
+		if (actions != null) {
 			for (String savedAction : actions.getKeys(false)) {
 				if (this.actions.contains(savedAction)) {
 					continue;
@@ -365,29 +362,24 @@ public final class Alias implements Nameable, Executable {
 				actions.set(savedAction, null);
 			}
 		}
-		generalSettings.set("Execution_Order", executionOrder.isEmpty() ? null : StringUtils.join(executionOrder, ", "));
-		ConfigurationSection permission = PERMISSION.getConfigurationSection(c);
-		permission.set("Enabled", permissionEnabled);
-		permission.set("Node", permissionNode);
-		permission.set("Groups", permissionGroups.isEmpty() ? null : StringUtils.join(permissionGroups, ", "));
-		permission.set("Message", permissionMessage == null ? null : StringEscapeUtils.escapeJava(permissionMessage.replace('§', '&')));
-		ConfigurationSection delay = DELAY.getConfigurationSection(c, false);
-		delay.set("Enabled", delayEnabled);
-		delay.set("Cancel_On_Move", delayCancelOnMove);
-		delay.set("Duration", delayDuration);
-		delay.set("Message", delayMessage == null ? null : StringEscapeUtils.escapeJava(delayMessage.replace('§', '&')));
-		delay.set("Cancel_Message", delayCancelMessage == null ? null : StringEscapeUtils.escapeJava(delayCancelMessage.replace('§', '&')));
-		ConfigurationSection cooldown = COOLDOWN.getConfigurationSection(c, false);
-		cooldown.set("Enabled", cooldownEnabled);
-		cooldown.set("Duration", cooldownDuration);
-		cooldown.set("Message", cooldownMessage == null ? null : StringEscapeUtils.escapeJava(cooldownMessage.replace('§', '&')));
-		ConfigurationSection cost = COST.getConfigurationSection(c, false);
-		cost.set("Enabled", costEnabled);
-		cost.set("Amount", costAmount);
-		cost.set("Message", costMessage == null ? null : StringEscapeUtils.escapeJava(costMessage.replace('§', '&')));
-		ConfigurationSection logging = LOGGING.getConfigurationSection(c, false);
-		logging.set("Enabled", loggingEnabled);
-		logging.set("Message", loggingMessage == null ? null : StringEscapeUtils.escapeJava(loggingMessage));
+		c.set(Setting.EXECUTION_ORDER.getPath(), executionOrder.isEmpty() ? null : StringUtils.join(executionOrder, ", "));
+		c.set(Setting.PERMISSION_ENABLED.getPath(), permissionEnabled);
+		c.set(Setting.PERMISSION_NODE.getPath(), permissionNode);
+		c.set(Setting.PERMISSION_GROUPS.getPath(), permissionGroups.isEmpty() ? null : StringUtils.join(permissionGroups, ", "));
+		c.set(Setting.PERMISSION_MESSAGE.getPath(), permissionMessage == null ? null : StringEscapeUtils.escapeJava(permissionMessage.replace('§', '&')));
+		c.set(Setting.DELAY_ENABLED.getPath(), delayEnabled);
+		c.set(Setting.DELAY_CANCEL_ON_MOVE.getPath(), delayCancelOnMove);
+		c.set(Setting.DELAY_DURATION.getPath(), delayDuration);
+		c.set(Setting.DELAY_MESSAGE.getPath(), delayMessage == null ? null : StringEscapeUtils.escapeJava(delayMessage.replace('§', '&')));
+		c.set(Setting.DELAY_CANCEL_MESSAGE.getPath(), delayCancelMessage == null ? null : StringEscapeUtils.escapeJava(delayCancelMessage.replace('§', '&')));
+		c.set(Setting.COOLDOWN_ENABLED.getPath(), cooldownEnabled);
+		c.set(Setting.COOLDOWN_DURATION.getPath(), cooldownDuration);
+		c.set(Setting.COOLDOWN_MESSAGE.getPath(), cooldownMessage == null ? null : StringEscapeUtils.escapeJava(cooldownMessage.replace('§', '&')));
+		c.set(Setting.COST_ENABLED.getPath(), costEnabled);
+		c.set(Setting.COST_AMOUNT.getPath(), costAmount);
+		c.set(Setting.COST_MESSAGE.getPath(), costMessage == null ? null : StringEscapeUtils.escapeJava(costMessage.replace('§', '&')));
+		c.set(Setting.LOGGING_ENABLED.getPath(), loggingEnabled);
+		c.set(Setting.LOGGING_MESSAGE.getPath(), loggingMessage == null ? null : StringEscapeUtils.escapeJava(loggingMessage));
 		configurationReader.saveConfiguration();
 	}
 
