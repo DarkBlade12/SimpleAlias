@@ -21,8 +21,8 @@ import com.darkblade12.simplealias.permission.Permission;
 import com.darkblade12.simplealias.util.StringReplacer;
 
 public abstract class Action implements Nameable, Executable, Comparable<Action> {
-	private static final Pattern PARAMS_PATTERN = Pattern.compile("<params@\\d+>|<params@\\d?-\\d+>|<params@\\d+-\\d?>");
-	private static final String REPLACE_REGEX = "\\s?<sender_name>|\\s?<params>|\\s?<params@\\d+>|\\s?<params@\\d?-\\d+>|\\s?<params@\\d+-\\d?>|\\s?<world>|\\s?<balance>|\\s?<group>|\\s?<faction>";
+	private static final Pattern PARAMS_PATTERN = Pattern.compile("<params@\\d+>|<params@\\d?-\\d+>|<params@\\d+-\\d?>", Pattern.CASE_INSENSITIVE);
+	private static final String REPLACE_REGEX = "\\s?<sender_name>|\\s?<params>|\\s?<params@\\d+>|\\s?<params@\\d?-\\d+>|\\s?<params@\\d+-\\d?>|\\s?<world_name>|\\s?<money_balance>|\\s?<group_name>|\\s?<faction_name>";
 	protected final String name;
 	protected Set<String> enabledWorlds;
 	protected Set<String> enabledPermissionNodes;
@@ -64,17 +64,17 @@ public abstract class Action implements Nameable, Executable, Comparable<Action>
 		}
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
-			s.addReplacement("<world>", p.getWorld().getName());
+			s.addReplacement("<world_name>", p.getWorld().getName());
 			VaultHook v = SimpleAlias.getVaultHook();
 			if (v.isEnabled()) {
 				if (v.isEconomyEnabled())
-					s.addReplacement("<balance>", Double.toString(v.getBalance(p)));
+					s.addReplacement("<money_balance>", Double.toString(v.getBalance(p)));
 				if (v.isPermissionEnabled() && v.hasPermissionGroupSupport())
-					s.addReplacement("<group>", v.getPrimaryGroup(p));
+					s.addReplacement("<group_name>", v.getPrimaryGroup(p));
 			}
 			FactionsHook f = SimpleAlias.getFactionsHook();
 			if (f.isEnabled())
-				s.addReplacement("<faction>", f.getFaction(p));
+				s.addReplacement("<faction_name>", f.getFaction(p));
 		}
 		return s.applyReplacement(target).replaceAll(REPLACE_REGEX, "");
 	}

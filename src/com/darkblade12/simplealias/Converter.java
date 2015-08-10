@@ -22,6 +22,7 @@ import com.darkblade12.simplealias.alias.action.types.MessageAction;
 import com.darkblade12.simplealias.reader.types.ConfigurationReader;
 import com.darkblade12.simplealias.section.IndependantConfigurationSection;
 import com.darkblade12.simplealias.section.exception.SectionNotFoundException;
+import com.darkblade12.simplealias.util.StringReplacer;
 
 public final class Converter {
 	private static final File DIRECTORY = new File("plugins/SimpleAlias/aliases/");
@@ -46,6 +47,7 @@ public final class Converter {
 
 	public static void convertAliases() {
 		int amount = 0;
+		StringReplacer s = new StringReplacer(new String[] { "<args", "<sender_group>", "<balance>", "<faction>" }, new String[] { "<params", "<group_name>", "<money_balance>", "<faction_name>" });
 		Configuration pluginConfig = SimpleAlias.instance().getConfig();
 		if (DIRECTORY.exists() && DIRECTORY.isDirectory())
 			for (File f : DIRECTORY.listFiles()) {
@@ -148,7 +150,7 @@ public final class Converter {
 							restoreBackup(f, backupFile);
 							continue;
 						}
-						String text = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(textString.replace("#", "\n")));
+						String text = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(s.applyReplacement(textString.replace("#", "\n"))));
 						aliasActions.add(new MessageAction("DisplayMessage", new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, text, false));
 						aliasExecutionOrder.add("DisplayMessage");
 					} else if (typeString.equalsIgnoreCase("Single")) {
@@ -162,7 +164,7 @@ public final class Converter {
 							restoreBackup(f, backupFile);
 							continue;
 						}
-						String finalCommand = StringUtils.removeStart(command, "/");
+						String finalCommand = s.applyReplacement(StringUtils.removeStart(command, "/"));
 						boolean disableCommand = executionSettings.getBoolean("Disable_Command");
 						if (disableCommand) {
 							String disableMessage = executionSettings.getString("Disable_Message");
@@ -189,7 +191,7 @@ public final class Converter {
 						int actionIndex = 1;
 						for (String command : commands.split("#")) {
 							String actionName = "ExecuteCommand" + actionIndex;
-							String finalCommand = StringUtils.removeStart(command, "/");
+							String finalCommand = s.applyReplacement(StringUtils.removeStart(command, "/"));
 							aliasActions.add(new CommandAction(actionName, new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, finalCommand, executor, false));
 							aliasExecutionOrder.add(actionName);
 							actionIndex++;
