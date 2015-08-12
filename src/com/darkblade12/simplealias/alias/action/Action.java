@@ -58,7 +58,7 @@ public abstract class Action implements Nameable, Executable, Comparable<Action>
 					int rangeStart = seperatorIndex == 0 ? 0 : Integer.parseInt(modifiers.substring(0, seperatorIndex));
 					int rangeEnd = seperatorIndex == modifiers.length() - 1 ? params.length : Integer.parseInt(modifiers.substring(seperatorIndex + 1, modifiers.length()));
 					if (rangeStart < rangeEnd && rangeStart < params.length)
-						s.addReplacement(param, StringUtils.join((String[]) Arrays.copyOfRange(params, rangeStart, rangeEnd >= params.length ? params.length : rangeEnd), " "));
+						s.addReplacement(param, StringUtils.join((String[]) Arrays.copyOfRange(params, rangeStart, (rangeEnd >= params.length ? params.length : rangeEnd) + 1), " "));
 				}
 			}
 		}
