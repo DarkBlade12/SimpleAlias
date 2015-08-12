@@ -4,19 +4,19 @@ General_Settings:
 
  # This is the description of this alias
  Description: No description set
+  
+ # Determines whether this alias can be executed as console
+ Executable_As_Console: true
  
  # This is the list of worlds where this alias is enabled
  # This check can be bypassed with SimpleAlias.bypass.enabledworlds
  # Format: <world_name>(, <world_name>...)
  # Enabled_Worlds: world
  
- # Determines whether this alias can be executed as console
- Executable_As_Console: true
- 
  # This section contains settings for the usage check of this alias
  Usage_Check:
  
-  # Determines wether the usage check is enabled
+  # Determines whether the usage check is enabled
   Enabled: false
   
   # This is the minimum amount of parameters the player has to type

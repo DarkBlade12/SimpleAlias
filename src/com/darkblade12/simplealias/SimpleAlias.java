@@ -25,7 +25,6 @@ public final class SimpleAlias extends JavaPlugin {
 	private AliasManager aliasManager;
 
 	public SimpleAlias() {
-		instance = this;
 		logger = getLogger();
 		vaultHook = new VaultHook();
 		factionsHook = new FactionsHook();
@@ -35,6 +34,7 @@ public final class SimpleAlias extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		instance = this;
 		long start = System.currentTimeMillis();
 		try {
 			Settings.load();
