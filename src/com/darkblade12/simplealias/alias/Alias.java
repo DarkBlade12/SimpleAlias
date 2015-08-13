@@ -131,7 +131,7 @@ public final class Alias implements Nameable, Executable {
 		this.actions = new NameableList<Action>(true);
 		ConfigurationSection actions = ACTIONS.getConfigurationSection(c);
 		for (String action : actions.getKeys(false)) {
-			if (this.actions.contains(name))
+			if (this.actions.contains(action))
 				throw new InvalidSectionException(action, ACTIONS, "is invalid (duplicate name)");
 			ConfigurationSection section = actions.getConfigurationSection(action);
 			Type type = Type.fromName(section.getString("Type"));
