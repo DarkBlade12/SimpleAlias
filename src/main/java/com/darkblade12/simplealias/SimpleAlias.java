@@ -11,8 +11,8 @@ import com.darkblade12.simplealias.command.alias.AliasCommandHandler;
 import com.darkblade12.simplealias.cooldown.CooldownManager;
 import com.darkblade12.simplealias.hook.types.FactionsHook;
 import com.darkblade12.simplealias.hook.types.VaultHook;
-import com.darkblade12.simplealias.metrics.MetricsLite;
 import com.darkblade12.simplealias.reader.types.ConfigurationTemplateReader;
+import org.bstats.bukkit.Metrics;
 
 public final class SimpleAlias extends JavaPlugin {
 	public static final String PREFIX = "§8§l[§a§oSimple§7§oAlias§8§l]§r ";
@@ -120,12 +120,11 @@ public final class SimpleAlias extends JavaPlugin {
 
 	private void enableMetrics() {
 		try {
-			MetricsLite m = new MetricsLite(this);
-			if (m.isOptOut()) {
+			Metrics m = new Metrics(this, 8539);
+			if (!m.isEnabled()) {
 				logger.warning("Metrics are disabled!");
 			} else {
-				logger.info("This plugin is using Metrics by Hidendra!");
-				m.start();
+				logger.info("This plugin is using Metrics by BtoBastian!");
 			}
 		} catch (Exception e) {
 			logger.info("An error occured while enabling Metrics!");

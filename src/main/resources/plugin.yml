@@ -1,5 +1,5 @@
 name: SimpleAlias
-version: 1.6.2
+version: ${project.version}
 author: DarkBlade12
 api-version: 1.13
 website: http://dev.bukkit.org/profiles/DarkBladee12
