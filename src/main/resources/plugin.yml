@@ -1,10 +1,10 @@
-name: SimpleAlias
+name: ${project.name}
 version: ${project.version}
+description: ${project.description}
+website: ${project.url}
 author: DarkBlade12
-api-version: 1.13
-website: http://dev.bukkit.org/profiles/DarkBladee12
-description: SimpleAlias allows you to create and manage aliases easily
 softdepend: [Vault, Factions, Multiverse-Core, Multiworld, PlotMe, MyWorlds]
+api-version: 1.13
 
 main: com.darkblade12.simplealias.SimpleAlias
 

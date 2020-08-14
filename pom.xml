@@ -6,6 +6,7 @@
     <version>1.6.2</version>
     <name>SimpleAlias</name>
     <url>https://www.curseforge.com/minecraft/bukkit-plugins/xsimplealias</url>
+    <description>SimpleAlias allows you to create and manage aliases easily</description>
 
     <!-- Maven repository for dependencies -->
     <repositories>
