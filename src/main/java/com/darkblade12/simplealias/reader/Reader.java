@@ -31,6 +31,7 @@ public abstract class Reader<D> {
 
 	public boolean saveResourceFile() {
 		try {
+			Files.createParentDirs(outputFile);
 		    InputStream inputStream = SimpleAlias.instance().getResource(resourceFileName);
 		    byte[] buffer = new byte[inputStream.available()];
 		    inputStream.read(buffer);
@@ -46,6 +47,7 @@ public abstract class Reader<D> {
 	public boolean copyFile(File destination) {
 		if (isOutputFileReadable())
 			try {
+				Files.createParentDirs(destination);
 				Files.copy(outputFile, destination);
 				return true;
 			} catch (IOException e) {
