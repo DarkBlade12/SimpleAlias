@@ -43,7 +43,7 @@ public final class MultipleCommand implements ICommand {
 					return;
 				}
 				String actionName = "ExecuteCommand" + index;
-				actions.add(new CommandAction("ExecuteCommand" + index, new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, command, Executor.SENDER, false));
+				actions.add(new CommandAction("ExecuteCommand" + index, new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, finalCommand, Executor.SENDER, false));
 				executionOrder.add(actionName);
 				index++;
 			}
