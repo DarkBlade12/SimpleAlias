@@ -1,6 +1,12 @@
+# Eclipse
 bin/
 .settings/
 *.classpath
 *.project
+
+# IntelliJ
+.idea/
+*.iml
+
+# Maven
 target/
-TODO.txt
