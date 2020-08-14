@@ -439,7 +439,7 @@ public final class Alias implements Nameable, Executable {
 				public void run() {
 					executeActions(sender, params);
 				}
-			}.runTaskLater(SimpleAlias.instance(), durationTicks);
+			}.runTaskLater(SimpleAlias.instance(), durationTicks + 1);
 			sender.sendMessage(delayMessage.replace("<remaining_time>", TimeUnit.convertToString(delayDuration * 1000)));
 			if (sender instanceof Player) {
 				final Player p = (Player) sender;
@@ -449,7 +449,7 @@ public final class Alias implements Nameable, Executable {
 
 					@Override
 					public void run() {
-						if (ticks > durationTicks) {
+						if (ticks >= durationTicks) {
 							cancel();
 						} else if (!p.isOnline()) {
 							cancel();
