@@ -32,9 +32,9 @@ public abstract class Reader<D> {
 	public boolean saveResourceFile() {
 		try {
 			Files.createParentDirs(outputFile);
-		    InputStream inputStream = SimpleAlias.instance().getResource(resourceFileName);
-		    byte[] buffer = new byte[inputStream.available()];
-		    inputStream.read(buffer);
+			InputStream inputStream = SimpleAlias.instance().getResource(resourceFileName);
+			byte[] buffer = new byte[inputStream.available()];
+			inputStream.read(buffer);
 			Files.write(buffer, outputFile);
 			return true;
 		} catch (Exception e) {
