@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.darkblade12.simplealias</groupId>
     <artifactId>SimpleAlias</artifactId>
-    <version>1.6.3</version>
+    <version>1.6.4</version>
     <name>SimpleAlias</name>
     <url>https://www.curseforge.com/minecraft/bukkit-plugins/xsimplealias</url>
     <description>SimpleAlias allows you to create and manage aliases easily</description>
