@@ -1,89 +1,103 @@
 package com.darkblade12.simplealias.alias;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.entity.Player;
 
-import com.darkblade12.simplealias.Settings;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Map;
 
 final class AliasCommand extends Command {
-	private static Field commandMap;
-	private static Field knownCommands;
-	private final Alias alias;
-	private boolean registered;
+    private static final String FALLBACK_PREFIX = "alias";
+    private static Field commandMapField;
+    private static Field knownCommandsField;
+    private static Method syncCommandsMethod;
+    private final Alias alias;
 
-	static {
-		try {
-			commandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-			commandMap.setAccessible(true);
-			knownCommands = SimpleCommandMap.class.getDeclaredField("knownCommands");
-			knownCommands.setAccessible(true);
-		} catch (Exception e) {
-			/* do nothing */
-		}
-	}
+    static {
+        try {
+            commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            commandMapField.setAccessible(true);
+            knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            knownCommandsField.setAccessible(true);
+            syncCommandsMethod = Bukkit.getServer().getClass().getMethod("syncCommands");
+            syncCommandsMethod.setAccessible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	public AliasCommand(Alias alias) {
-		super(alias.getName(), alias.getDescription(), alias.isUsageCheckEnabled() ? alias.getUsageCheckMessage() : "No usage message set", new ArrayList<String>());
-		this.alias = alias;
-	}
+    public AliasCommand(Alias alias) {
+        super(alias.getName(), alias.getDescription(), alias.isUsageCheckEnabled() ? alias.getUsageCheckMessage() : "No usage message set",
+              new ArrayList<>());
+        this.alias = alias;
+    }
 
-	@Override
-	public boolean execute(CommandSender sender, String label, String[] args) {
-		alias.execute(sender, args);
-		return true;
-	}
+    public static void syncCommands() {
+        try {
+            syncCommandsMethod.invoke(Bukkit.getServer());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public boolean testPermissionSilent(CommandSender target) {
-		return alias.isPermissionEnabled() ? target instanceof Player ? alias.hasPermission((Player) target) : true : true;
-	}
+    @Override
+    public boolean execute(CommandSender sender, String label, String[] args) {
+        alias.execute(sender, args);
+        return true;
+    }
 
-	public boolean register() throws IllegalStateException {
-		if (registered)
-			throw new IllegalStateException("Command is already registered");
-		try {
-			return registered = ((SimpleCommandMap) commandMap.get(Bukkit.getServer())).register(getName(), this);
-		} catch (Exception e) {
-			if (Settings.isDebugEnabled()) {
-				e.printStackTrace();
-			}
-			return false;
-		}
-	}
+    @Override
+    public boolean testPermissionSilent(CommandSender target) {
+        return alias.testPermission(target);
+    }
 
-	@SuppressWarnings("unchecked")
-	public boolean unregister() throws IllegalStateException {
-		if (!registered)
-			throw new IllegalStateException("Command is not registered");
-		try {
-			((Map<String, Command>) knownCommands.get((SimpleCommandMap) commandMap.get(Bukkit.getServer()))).remove(getName());
-			registered = false;
-			return true;
-		} catch (Exception e) {
-			if (Settings.isDebugEnabled()) {
-				e.printStackTrace();
-			}
-			return false;
-		}
-	}
+    public boolean register() throws IllegalStateException {
+        if (isRegistered()) {
+            throw new IllegalStateException("Command is already registered.");
+        }
 
-	@Override
-	public String getPermissionMessage() {
-		return alias.getPermissionMessage();
-	}
+        try {
+            SimpleCommandMap commandMap = (SimpleCommandMap) commandMapField.get(Bukkit.getServer());
+            return commandMap.register(getName(), FALLBACK_PREFIX, this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-	public Alias getAlias() {
-		return this.alias;
-	}
+    @SuppressWarnings("unchecked")
+    public boolean unregister() throws IllegalStateException {
+        if (!isRegistered()) {
+            throw new IllegalStateException("Command is not registered.");
+        }
 
-	public boolean isRegistered() {
-		return this.registered;
-	}
+        try {
+            SimpleCommandMap commandMap = (SimpleCommandMap) commandMapField.get(Bukkit.getServer());
+            Map<String, Command> commands = (Map<String, Command>) knownCommandsField.get(commandMap);
+
+            String name = getName();
+            String[] labels = { name, FALLBACK_PREFIX + ":" + name };
+            for (String label : labels) {
+                commands.remove(label);
+            }
+
+            return unregister(commandMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public String getPermissionMessage() {
+        return alias.getPermissionMessage();
+    }
+
+    public Alias getAlias() {
+        return this.alias;
+    }
 }

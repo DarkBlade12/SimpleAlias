@@ -1,64 +1,66 @@
 General_Settings:
- Description: No description set
- Executable_As_Console: true
- # Enabled_Worlds: world
- 
- Usage_Check:
-  Enabled: false
-  Min_Params: 0
-  Max_Params: 0
-  Message: '&cInvalid usage!\n&6/example'
+  Description: No description set
+  Executable_As_Console: true
+  Console_Message: 'This alias cannot be executed as console!'
+  # Enabled_Worlds: world
+  World_Message: '&cThis alias is not enabled in your world!'
+  Execution_Order: Example, Example2
 
- Actions:
+  Usage_Check:
+    Enabled: false
+    Min_Params: 0
+    Max_Params: 0
+    Message: '&cInvalid usage!\n&6/example'
 
-  Example:
-   Type: MESSAGE
-   # Enabled_Worlds: world
-   # Enabled_Permission_Nodes: Example.node
-   # Enabled_Permission_Groups: ExampleGroup
-   # Enabled_Params: example@0
-   Priority: 0
-   Translate_Color_Codes: false
-   Text: "&cThis alias hasn't been setup yet!"
-   Broadcast: false
+  Actions:
 
-  Example2:
-   Type: COMMAND
-   # Enabled_Worlds: world
-   # Enabled_Permission_Nodes: Example.node
-   # Enabled_Permission_Groups: ExampleGroup
-   # Enabled_Params: example@0
-   Priority: 0
-   Translate_Color_Codes: false
-   Command: "msg <sender_name> Hi, this is an example!"
-   Executor: CONSOLE
-   Grant_Permission: false
+    Example:
+      Type: MESSAGE
+      # Enabled_Worlds: world
+      # Enabled_Permission_Nodes: Example.node
+      # Enabled_Permission_Groups: ExampleGroup
+      # Enabled_Params: example@0
+      Priority: 0
+      Translate_Color_Codes: false
+      Text: '&cThis alias has not been setup yet!'
+      Broadcast: false
 
- Execution_Order: Example, Example2
+    Example2:
+      Type: COMMAND
+      # Enabled_Worlds: world
+      # Enabled_Permission_Nodes: Example.node
+      # Enabled_Permission_Groups: ExampleGroup
+      # Enabled_Params: example@0
+      Priority: 0
+      Translate_Color_Codes: false
+      Command: 'msg <sender_name> Hi, this is an example!'
+      Executor: CONSOLE
+      Grant_Permission: false
+      Silent: false
 
- Permission:
-  Enabled: true
-  Node: SimpleAlias.use.example
-  # Groups: ExampleGroup
-  Message: "&cYou don't have permission for this alias!"
+  Permission:
+    Enabled: true
+    Node: SimpleAlias.use.example
+    # Groups: ExampleGroup
+    Message: '&cYou do not have permission to use this alias!'
 
- Delay:
-  Enabled: false
-  Cancel_On_Move: false
-  Duration: 10
-  Message: '&6The alias execution will commence in &e<remaining_time>&6.'
-  Cancel_Message: '&4The alias execution request was cancelled!'
+  Delay:
+    Enabled: false
+    Cancel_On_Move: false
+    Duration: 10
+    Message: '&6The alias execution will commence in &e<remaining_time>&6.'
+    Cancel_Message: '&4The alias execution request was cancelled!'
 
- Cooldown:
-  Enabled: false
-  Duration: 180
-  Message: '&cYou have to wait <remaining_time> until you can execute this alias again!'
+  Cooldown:
+    Enabled: false
+    Duration: 180
+    Message: '&cYou have to wait <remaining_time> until you can execute this alias again!'
 
- Cost:
-  Enabled: false
-  Amount: 40.0
-  Message: "&cYou don't have enough money to use this alias! &8(&6<cost_amount>&8)"
+  Cost:
+    Enabled: false
+    Amount: 40.0
+    Message: '&cYou do not have enough money to use this alias! &8(&6<cost_amount>&8)'
 
- Logging:
-  Enabled: false
-  Message: '<alias> was executed by <player_name>'
+  Logging:
+    Enabled: false
+    Message: '<alias> was executed by <player_name>'

@@ -2,201 +2,211 @@
 # Remove the '#' before a setting (for example 'Enabled_Worlds') to enable it
 General_Settings:
 
- # This is the description of this alias
- Description: No description set
-  
- # Determines whether this alias can be executed as console
- Executable_As_Console: true
- 
- # This is the list of worlds where this alias is enabled
- # This check can be bypassed with SimpleAlias.bypass.enabledworlds
- # Format: <world_name>(, <world_name>...)
- # Enabled_Worlds: world
- 
- # This section contains settings for the usage check of this alias
- Usage_Check:
- 
-  # Determines whether the usage check is enabled
-  Enabled: false
-  
-  # This is the minimum amount of parameters the player has to type
-  Min_Params: 0
-  
-  # This is the maximum amount of parameters the player can type
-  # If you want a command with infinite parameters just fill in a high number like 100
-  Max_Params: 0
-  
-  Message: '&cInvalid usage!\n&6/example'
- 
- # This section contains actions which can be utilized in the order
- Actions:
- 
-  # This is an example message action called "Example"
-  Example:
-  
-   # This is the type of the action
-   Type: MESSAGE
-   
-   # This is the list of worlds where this action is enabled
-   # Format: <world_name>(, <world_name>...)
-   # Enabled_Worlds: world
-   
-   # This is the list of permission nodes of which the execution player has to have at least one in order to enable this action
-   # If this and 'Enabled_Permission_Groups' are not empty, both conditions have to be fullfilled
-   # Format: <permission_node>(, <permission_node>...)
-   # Enabled_Permission_Nodes: Example.node
-   
-   # This is the list of permission groups of which the execution player has to be in at least one in order to enable this action
-   # If this and 'Enabled_Permission_Nodes' are not empty, both conditions have to be fullfilled
-   # Format: <group_name>(, <group_name>...)
-   # Enabled_Permission_Groups: ExampleGroup
-   
-   # This is the list of params which have to match in order to enable this action
-   # Please note that you can't add more than one param with the same index
-   # Format: <param@index>(, <param@index>...)
-   # With this example the sender has to type '/<alias> example' in order to enable this action
-   # Enabled_Params: example@0
-   
-   # This is the priority of this action
-   # If this action is triggered along with other actions and it has a higher priority only this and actions with the same priority will be executed
-   Priority: 0
-   
-   # Determines whether the color codes in the parameters will be translated for this action
-   # Color codes have to start with '&'
-   Translate_Color_Codes: false
-   
-   # This is an action specific setting called "Text"
-   # This text will be sent to the sender or broadcasted when this action is executed
-   Text: "&cThis alias hasn't been setup yet!"
-   
-   # This is an action specific setting called "Broadcast"
-   # Determines whether the text will be broadcasted or just sent to the player
-   Broadcast: false
-   
-  # This is an example command action called "Example2"
-  Example2:
-  
-   # This is the type of the action
-   Type: COMMAND
-   
-   # This is the list of worlds where this action is enabled
-   # Format: <world_name>(, <world_name>...)
-   # Enabled_Worlds: world
-   
-   # This is the list of permission nodes of which the execution player has to have at least one in order to enable this action
-   # If this and 'Enabled_Permission_Groups' are not empty, both conditions have to be fullfilled
-   # Format: <permission_node>(, <permission_node>...)
-   # Enabled_Permission_Nodes: Example.node
-   
-   # This is the list of permission groups of which the execution player has to be in at least one in order to enable this action
-   # If this and 'Enabled_Permission_Nodes' are not empty, both conditions have to be fullfilled
-   # Format: <group_name>(, <group_name>...)
-   # Enabled_Permission_Groups: ExampleGroup
-   
-   # This is the list of params which have to match in order to enable this action
-   # Please note that you can't add more than one param with the same index
-   # Format: <param@index>(, <param@index>...)
-   # Enabled_Params: example@0
-   
-   # This is the priority of this action
-   # If this action is triggered along with other actions and it has a higher priority only this and actions with the same priority will be executed
-   Priority: 0
-   
-   # Determines whether the color codes in the parameters will be translated for this action
-   # Color codes have to start with '&'
-   Translate_Color_Codes: false
-   
-   # This is an action specific setting called "Command"
-   # This is the command that is bound to this action
-   # It isn't necessary to add a '/'
-   Command: "msg <sender_name> Hi, this is an example!"
-   
-   # This is an action specific setting called "Executor"
-   # This is the executor of the command
-   Executor: CONSOLE
-   
-   # This is an action specific setting called "Grant_Permission"
-   # Determines whether the sender gets the permission for the particular command granted to be able to execute it
-   # The permission grant is only temporary
-   Grant_Permission: false
-  
- # This is the execution order of the actions
- # Actions can be used more than one times
- # If this is empty, the alias won't do anything
- # Format: <action_name>(, <action_name>...)
- Execution_Order: Example, Example2
- 
- # This section contains settings for the permission
- Permission:
- 
-  # Determines whether the permission is enabled
-  # If this is set to true, players have to have the permission node in order to be able to execute this alias
-  Enabled: true
-  
-  # This is the name of the permission node
-  # Please note that this doesn't have to start with 'SimpleAlias.use...', you can fill in whatever you want
-  Node: SimpleAlias.use.example
-  
-  # This is a list of groups that are permitted to use this alias no matter if they have the permission node
-  # Format: <group_name>(, <group_name>...)
-  # Groups: ExampleGroup
-  
-  # This is the message that will be displayed if the sender doesn't have permission
-  Message: "&cYou don't have permission for this alias!"
-  
- # This section contains settings for the execution delay of the actions
- Delay:
- 
-  # Determines whether the delay is enabled
-  # The cooldown can be bypassed with SimpleAlias.bypass.delay
-  Enabled: false
+  # This is the description of this alias
+  Description: No description set
 
-  # Determines whether the alias execution is cancelled if you change your position  
-  Cancel_On_Move: false
-  
-  # This is the duration of the delay in seconds
-  Duration: 10
-  
-  # This is the message that will be displayed if the delay is enabled
-  Message: '&6The alias execution will commence in &e<remaining_time>&6.'
-  
-  # This is the message that will be displayed if the delay gets cancelled
-  Cancel_Message: '&4The alias execution request was cancelled!'
- 
- # This section contains settings for the cooldown
- Cooldown:
- 
-  # Determines whether the cooldown is enabled
-  # The cooldown can be bypassed with SimpleAlias.bypass.cooldown
-  Enabled: false
-  
-  # This is the duration of the cooldown in seconds
-  Duration: 180
-  
-  # This is the message that will be displayed if someone tries to execute this alias while his cooldown is not over
-  Message: '&cYou have to wait <remaining_time> until you can execute this alias again!'
-  
- # This section contains settings for the cost
- Cost:
- 
-  # Determines whether a cost for this alias is enabled
-  # The cost can be bypassed with SimpleAlias.bypass.cost
-  Enabled: false
-  
-  # This is the amount of the cost for this alias
-  # This value can either be a normal or a point number
-  Amount: 40.0
-  
-  # This is the message that will be displayed if the sender doesn't have enough money
-  Message: "&cYou don't have enough money to use this alias! &8(&6<cost_amount>&8)"
+  # Determines whether this alias can be executed as console
+  Executable_As_Console: true
 
- # This section contains settings for logging the execution of this alias
- # The execution will only be logged for players
- Logging:
+  # This is the message that will be displayed if the alias is executed by console and 'Executable_As_Console' is set to 'false'
+  Console_Message: 'This alias cannot be executed as console!'
 
-  # Determines whether logging is enabled
-  Enabled: false
- 
-  # This is the message that will be logged
-  # Please note that '<player_name> issued command: <command>' will automatically be logged
-  Message: '<alias> was executed by <player_name>'
+  # This is the list of worlds where this alias is enabled
+  # This check can be bypassed with SimpleAlias.bypass.enabledworlds
+  # Format: <world_name>(, <world_name>...)
+  # Enabled_Worlds: world
+
+  # This is the message that will be displayed if the alias can't be executed in the world of the sender
+  # Message variables: <world_name> (name of the world the sender is in)
+  World_Message: '&cThis alias is not enabled in your world!'
+
+  # This is the execution order of the actions
+  # Actions can be used more than one times
+  # If this is empty, the alias won't do anything
+  # Format: <action_name>(, <action_name>...)
+  Execution_Order: Example, Example2
+
+  # This section contains actions which can be utilized in the order
+  Actions:
+
+    # This is an example message action called 'Example'
+    Example:
+
+      # This is the type of the action
+      Type: MESSAGE
+
+      # This is the list of worlds where this action is enabled
+      # Format: <world_name>(, <world_name>...)
+      # Enabled_Worlds: world
+
+      # This is the list of permission nodes of which the execution player has to have at least one in order to enable this action
+      # If this and 'Enabled_Permission_Groups' are not empty, both conditions have to be fullfilled
+      # Format: <permission_node>(, <permission_node>...)
+      # Enabled_Permission_Nodes: Example.node
+
+      # This is the list of permission groups of which the execution player has to be in at least one in order to enable this action
+      # If this and 'Enabled_Permission_Nodes' are not empty, both conditions have to be fullfilled
+      # Format: <group_name>(, <group_name>...)
+      # Enabled_Permission_Groups: ExampleGroup
+
+      # This is the list of params which have to match in order to enable this action
+      # Please note that you can't add more than one param with the same index
+      # Format: <param@index>(, <param@index>...)
+      # With this example the sender has to type '/<alias> example' in order to enable this action
+      # Enabled_Params: example@0
+
+      # This is the priority of this action
+      # If this action is triggered along with other actions and it has a higher priority only this and actions with the same priority will be executed
+      Priority: 0
+
+      # Determines whether the color codes in the parameters will be translated for this action
+      # Color codes have to start with '&'
+      Translate_Color_Codes: false
+
+      # This is an action specific setting called 'Text'
+      # This text will be sent to the sender or broadcast when this action is executed
+      Message: '&cThis alias has not been setup yet!'
+
+      # This is an action specific setting called 'Broadcast'
+      # Determines whether the text will be broadcast or just sent to the player
+      Broadcast: false
+
+    # This is an example command action called 'Example2'
+    Example2:
+
+      # This is the type of the action
+      Type: COMMAND
+
+      # This is the list of worlds where this action is enabled
+      # Format: <world_name>(, <world_name>...)
+      # Enabled_Worlds: world
+
+      # This is the list of permission nodes of which the execution player has to have at least one in order to enable this action
+      # If this and 'Enabled_Permission_Groups' are not empty, both conditions have to be fullfilled
+      # Format: <permission_node>(, <permission_node>...)
+      # Enabled_Permission_Nodes: Example.node
+
+      # This is the list of permission groups of which the execution player has to be in at least one in order to enable this action
+      # If this and 'Enabled_Permission_Nodes' are not empty, both conditions have to be fullfilled
+      # Format: <group_name>(, <group_name>...)
+      # Enabled_Permission_Groups: ExampleGroup
+
+      # This is the list of params which have to match in order to enable this action
+      # Please note that you can't add more than one param with the same index
+      # Format: <param@index>(, <param@index>...)
+      # Enabled_Params: example@0
+
+      # This is the priority of this action
+      # If this action is triggered along with other actions and it has a higher priority only this and actions with the same priority will be executed
+      Priority: 0
+
+      # Determines whether the color codes in the parameters will be translated for this action
+      # Color codes have to start with '&'
+      Translate_Color_Codes: false
+
+      # This is an action specific setting called 'Command'
+      # This is the command that is bound to this action
+      # It isn't necessary to add a '/'
+      Command: 'msg <sender_name> Hi, this is an example!'
+
+      # This is an action specific setting called 'Executor'
+      # This is the executor of the command
+      Executor: CONSOLE
+
+      # This is an action specific setting called 'Grant_Permission'
+      # Determines whether a proxy with all permissions is used to execute the particular command
+      Grant_Permission: false
+
+      # This is an action specific setting called 'Silent'
+      # Determines whether the regular command output should be hidden from the sender
+      Silent: false
+
+  # This section contains settings for the usage check of this alias
+  Usage_Check:
+
+    # Determines whether the usage check is enabled
+    Enabled: false
+
+    # This is the minimum amount of parameters the player has to type
+    Min_Params: 0
+
+    # This is the maximum amount of parameters the player can type
+    # If you want a command with infinite parameters just fill in a high number like 100
+    Max_Params: 0
+
+    Message: '&cInvalid usage!\n&6/example'
+
+  # This section contains settings for the permission
+  Permission:
+
+    # Determines whether the permission is enabled
+    # If this is set to true, players have to have the permission node in order to be able to execute this alias
+    Enabled: true
+
+    # This is the name of the permission node
+    # Please note that this doesn't have to start with 'SimpleAlias.use...', you can fill in whatever you want
+    Node: SimpleAlias.use.example
+
+    # This is a list of groups that are permitted to use this alias no matter if they have the permission node
+    # Format: <group_name>(, <group_name>...)
+    # Groups: ExampleGroup
+
+    # This is the message that will be displayed if the sender doesn't have permission
+    Message: '&cYou do not have permission to use this alias!'
+
+  # This section contains settings for the execution delay of the actions
+  Delay:
+
+    # Determines whether the delay is enabled
+    # The cooldown can be bypassed with SimpleAlias.bypass.delay
+    Enabled: false
+
+    # Determines whether the alias execution is cancelled if you change your position
+    Cancel_On_Move: false
+
+    # This is the duration of the delay in seconds
+    Duration: 10
+
+    # This is the message that will be displayed if the delay is enabled
+    Message: '&6The alias execution will commence in &e<remaining_time>&6.'
+
+    # This is the message that will be displayed if the delay gets cancelled
+    Cancel_Message: '&4The alias execution request was cancelled!'
+
+  # This section contains settings for the cooldown
+  Cooldown:
+
+    # Determines whether the cooldown is enabled
+    # The cooldown can be bypassed with SimpleAlias.bypass.cooldown
+    Enabled: false
+
+    # This is the duration of the cooldown in seconds
+    Duration: 180
+
+    # This is the message that will be displayed if someone tries to execute this alias while his cooldown is not over
+    Message: '&cYou have to wait <remaining_time> until you can execute this alias again!'
+
+  # This section contains settings for the cost
+  Cost:
+
+    # Determines whether a cost for this alias is enabled
+    # The cost can be bypassed with SimpleAlias.bypass.cost
+    Enabled: false
+
+    # This is the amount of the cost for this alias
+    # This value can either be a normal or a point number
+    Amount: 40.0
+
+    # This is the message that will be displayed if the sender doesn't have enough money
+    Message: '&cYou do not have enough money to use this alias! &8(&6<cost_amount>&8)'
+
+  # This section contains settings for logging the execution of this alias
+  # The execution will only be logged for players
+  Logging:
+
+    # Determines whether logging is enabled
+    Enabled: false
+
+    # This is the message that will be logged
+    # Please note that '<player_name> issued command: <command>' will automatically be logged
+    Message: '<alias> was executed by <player_name>'

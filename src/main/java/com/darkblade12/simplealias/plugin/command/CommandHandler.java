@@ -1,0 +1,164 @@
+package com.darkblade12.simplealias.plugin.command;
+
+import com.darkblade12.simplealias.plugin.PluginBase;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public abstract class CommandHandler<T extends PluginBase> implements CommandExecutor, TabCompleter, Iterable<CommandBase<T>> {
+    protected final T plugin;
+    protected final String defaultLabel;
+    protected final Map<String, CommandBase<T>> commands;
+    protected final HelpCommand<T> help;
+
+    protected CommandHandler(T plugin, String defaultLabel, int helpPageSize) {
+        this.plugin = plugin;
+        this.defaultLabel = defaultLabel;
+        commands = new LinkedHashMap<>();
+        help = new HelpCommand<>(this, helpPageSize);
+    }
+
+    protected CommandHandler(T plugin, String defaultLabel) {
+        this(plugin, defaultLabel, 4);
+    }
+
+    public void enable() throws CommandRegistrationException {
+        registerCommand(help);
+        registerCommands();
+        registerExecutor();
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command bukkitCommand, String label, String[] args) {
+        if (args.length == 0) {
+            displayUnknownCommand(sender, label);
+            return true;
+        }
+
+        CommandBase<T> command = getCommand(args[0]);
+        if (command == null) {
+            displayUnknownCommand(sender, label);
+            return true;
+        }
+
+        String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
+        if (!command.isExecutableAsConsole() && !(sender instanceof Player)) {
+            plugin.sendMessage(sender, "command.noConsole");
+            return true;
+        }
+
+        if (!command.checkPermission(sender)) {
+            plugin.sendMessage(sender, "command.noPermission");
+            return true;
+        }
+
+        if (!command.isValid(newArgs)) {
+            displayInvalidUsage(sender, command, label);
+            return true;
+        }
+
+        command.execute(plugin, sender, label, newArgs);
+        return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command bukkitCommand, String alias, String[] args) {
+        List<String> suggestions = new ArrayList<>();
+        if (args.length < 1) {
+            return suggestions;
+        }
+
+        if (args.length == 1) {
+            for (CommandBase<T> command : commands.values()) {
+                suggestions.add(command.getName());
+            }
+        } else {
+            CommandBase<T> command = getCommand(args[0]);
+            if (command == null) {
+                return null;
+            }
+
+            String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
+            List<String> cmdSuggestions = command.getSuggestions(plugin, sender, newArgs);
+            if (cmdSuggestions == null) {
+                return suggestions;
+            }
+
+            suggestions = cmdSuggestions;
+        }
+
+        String filter = args[args.length - 1].toLowerCase();
+        if (filter.isEmpty()) {
+            return suggestions;
+        }
+
+        return suggestions.stream().filter(arg -> arg.toLowerCase().startsWith(filter)).collect(Collectors.toList());
+    }
+
+    private void registerExecutor() throws CommandRegistrationException {
+        PluginCommand command = plugin.getCommand(defaultLabel);
+        if (command == null) {
+            throw new CommandRegistrationException("The command '%s' is not registered in the plugin.yml.", defaultLabel);
+        }
+
+        command.setExecutor(this);
+    }
+
+    protected void registerCommand(CommandBase<T> command) throws CommandRegistrationException {
+        String name = command.getName();
+        if (commands.containsKey(name)) {
+            throw new CommandRegistrationException("The command '%s' cannot be registered multiple times.", name);
+        }
+
+        commands.put(name, command);
+    }
+
+    protected void registerCommand(Class<? extends CommandBase<T>> cmdClass) throws CommandRegistrationException {
+        CommandBase<T> command;
+        try {
+            command = cmdClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new CommandRegistrationException("Failed to instantiate the command of class '%s'.", cmdClass.getName(), e);
+        }
+
+        registerCommand(command);
+    }
+
+    protected abstract void registerCommands() throws CommandRegistrationException;
+
+    @Override
+    public Iterator<CommandBase<T>> iterator() {
+        return commands.values().iterator();
+    }
+
+    private void displayUnknownCommand(CommandSender sender, String label) {
+        plugin.sendMessage(sender, "command.unknown", help.getUsage(label));
+    }
+
+    public void displayInvalidUsage(CommandSender sender, CommandBase<T> command, String label) {
+        plugin.sendMessage(sender, "command.invalidUsage", command.getUsage(label));
+    }
+
+    public T getPlugin() {
+        return plugin;
+    }
+
+    public String getDefaultLabel() {
+        return defaultLabel;
+    }
+
+    public CommandBase<T> getCommand(String name) {
+        return commands.getOrDefault(name.toLowerCase(), null);
+    }
+}

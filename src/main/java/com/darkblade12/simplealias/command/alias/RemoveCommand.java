@@ -1,28 +1,43 @@
 package com.darkblade12.simplealias.command.alias;
 
+import com.darkblade12.simplealias.Permission;
+import com.darkblade12.simplealias.SimpleAlias;
+import com.darkblade12.simplealias.alias.Alias;
+import com.darkblade12.simplealias.alias.AliasException;
+import com.darkblade12.simplealias.alias.AliasManager;
+import com.darkblade12.simplealias.plugin.command.CommandBase;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 
-import com.darkblade12.simplealias.SimpleAlias;
-import com.darkblade12.simplealias.alias.Alias;
-import com.darkblade12.simplealias.alias.AliasManager;
-import com.darkblade12.simplealias.command.CommandDetails;
-import com.darkblade12.simplealias.command.CommandHandler;
-import com.darkblade12.simplealias.command.ICommand;
-import com.darkblade12.simplealias.permission.Permission;
+import java.util.List;
 
-@CommandDetails(name = "remove", params = "<name>", description = "Removes an existing alias", permission = Permission.REMOVE_COMMAND)
-public final class RemoveCommand implements ICommand {
-	@Override
-	public void execute(CommandHandler handler, CommandSender sender, String label, String[] params) {
-		String name = StringUtils.removeStart(params[0], "/");
-		AliasManager manager = SimpleAlias.getAliasManager();
-		Alias a = manager.getAlias(name);
-		if (a == null) {
-			sender.sendMessage(SimpleAlias.PREFIX + "§cAn alias with this name doesn't exist!");
-		} else {
-			manager.unregister(a);
-			sender.sendMessage(SimpleAlias.PREFIX + "§aThe alias §6" + name + " §awas removed.");
-		}
-	}
+public final class RemoveCommand extends CommandBase<SimpleAlias> {
+    public RemoveCommand() {
+        super("remove", Permission.COMMAND_REMOVE, "<name>");
+    }
+
+    @Override
+    public void execute(SimpleAlias plugin, CommandSender sender, String label, String[] args) {
+        String name = StringUtils.removeStart(args[0], "/");
+        AliasManager manager = plugin.getAliasManager();
+        Alias alias = manager.getAlias(name);
+        if (alias == null) {
+            plugin.sendMessage(sender, "alias.notFound", name);
+            return;
+        }
+        name = alias.getName();
+
+        try {
+            manager.removeAlias(alias);
+            plugin.sendMessage(sender, "command.alias.remove.succeeded", name);
+        } catch (AliasException e) {
+            plugin.sendMessage(sender, "command.alias.remove.failed", name, e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<String> getSuggestions(SimpleAlias plugin, CommandSender sender, String[] args) {
+        return args.length == 1 ? plugin.getAliasManager().getAliasNames() : null;
+    }
 }

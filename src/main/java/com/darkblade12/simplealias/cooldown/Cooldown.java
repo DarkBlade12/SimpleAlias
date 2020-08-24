@@ -1,43 +1,38 @@
 package com.darkblade12.simplealias.cooldown;
 
-import java.io.Serializable;
+import com.darkblade12.simplealias.util.MessageUtils;
 
-import com.darkblade12.simplealias.nameable.Nameable;
-import com.darkblade12.simplealias.util.TimeUnit;
+public final class Cooldown {
+    private long expiredTime;
 
-public final class Cooldown implements Nameable, Serializable {
-	private static final long serialVersionUID = 3105378695539732729L;
-	private String name;
-	private long expiredTime;
+    public Cooldown(long expiredTime) {
+        this.expiredTime = expiredTime;
+    }
 
-	public Cooldown(String name, long expiredTime) {
-		this.name = name;
-		this.expiredTime = expiredTime;
-	}
+    public Cooldown(int duration) {
+        this(System.currentTimeMillis() + duration * 1000L);
+    }
 
-	public static Cooldown fromDuration(String name, long duration) {
-		return new Cooldown(name, System.currentTimeMillis() + (duration * 1000));
-	}
+    public long getExpiredTime() {
+        return expiredTime;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    public boolean isExpired() {
+        return expiredTime >= 0 && System.currentTimeMillis() > expiredTime;
+    }
 
-	public long getExpiredTime() {
-		return this.expiredTime;
-	}
+    public long getRemainingDuration() {
+        if (expiredTime < 0) {
+            return -1;
+        }
 
-	public long getRemainingTime() {
-		return expiredTime >= 0 ? isExpired() ? 0 : expiredTime - System.currentTimeMillis() : -1;
-	}
-	
-	public String getRemainingTimeString() {
-		long remaining = getRemainingTime();
-		return remaining == -1 ? "forever" : TimeUnit.convertToString(remaining);
-	}
+        long currentTime = System.currentTimeMillis();
+        return isExpired() || currentTime >= expiredTime ? 0 : expiredTime - currentTime;
+    }
 
-	public boolean isExpired() {
-		return expiredTime >= 0 ? System.currentTimeMillis() > expiredTime : false;
-	}
+    @Override
+    public String toString() {
+        long duration = getRemainingDuration();
+        return duration == -1 ? "forever" : MessageUtils.formatDuration(duration);
+    }
 }

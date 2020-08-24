@@ -1,175 +1,199 @@
 package com.darkblade12.simplealias.alias.action;
 
+import com.darkblade12.simplealias.SimpleAlias;
+import com.darkblade12.simplealias.alias.DynamicVariable;
+import com.darkblade12.simplealias.nameable.Nameable;
+import com.darkblade12.simplealias.plugin.hook.FactionsHook;
+import com.darkblade12.simplealias.plugin.hook.VaultHook;
+import com.darkblade12.simplealias.replacer.Replacer;
+import com.darkblade12.simplealias.util.MessageUtils;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.World;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+public abstract class Action implements Nameable, Comparable<Action> {
+    protected String name;
+    protected Set<String> enabledWorlds;
+    protected Set<String> enabledPermissionNodes;
+    protected Set<String> enabledPermissionGroups;
+    protected Map<Integer, String> enabledParams;
+    protected int priority;
+    protected boolean translateColorCodes;
 
-import com.darkblade12.simplealias.SimpleAlias;
-import com.darkblade12.simplealias.alias.Executable;
-import com.darkblade12.simplealias.hook.types.FactionsHook;
-import com.darkblade12.simplealias.hook.types.VaultHook;
-import com.darkblade12.simplealias.nameable.Nameable;
-import com.darkblade12.simplealias.permission.Permission;
-import com.darkblade12.simplealias.util.StringReplacer;
+    protected Action(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups,
+                     Map<Integer, String> enabledParams, int priority, boolean translateColorCodes) {
+        this.name = name;
+        this.enabledWorlds = enabledWorlds;
+        this.enabledPermissionNodes = enabledPermissionNodes;
+        this.enabledPermissionGroups = enabledPermissionGroups;
+        this.enabledParams = enabledParams;
+        this.priority = priority;
+        this.translateColorCodes = translateColorCodes;
+    }
 
-public abstract class Action implements Nameable, Executable, Comparable<Action> {
-	private static final Pattern PARAMS_PATTERN = Pattern.compile("<params@\\d+>|<params@\\d?-\\d+>|<params@\\d+-\\d?>", Pattern.CASE_INSENSITIVE);
-	private static final String REPLACE_REGEX = "\\s?<sender_name>|\\s?<params>|\\s?<params@\\d+>|\\s?<params@\\d?-\\d+>|\\s?<params@\\d+-\\d?>|\\s?<world_name>|\\s?<money_balance>|\\s?<group_name>|\\s?<faction_name>|\\s?<sender_uuid>";
-	protected final String name;
-	protected Set<String> enabledWorlds;
-	protected Set<String> enabledPermissionNodes;
-	protected Set<String> enabledPermissionGroups;
-	protected Map<Integer, String> enabledParams;
-	protected int priority;
-	protected boolean translateColorCodes;
+    public abstract void execute(SimpleAlias plugin, CommandSender sender, String[] params);
 
-	public Action(String name, Set<String> enabledWorlds, Set<String> enabledPermissionNodes, Set<String> enabledPermissionGroups, Map<Integer, String> enabledParams, int priority, boolean translateColorCodes) {
-		this.name = name;
-		this.enabledWorlds = enabledWorlds;
-		this.enabledPermissionNodes = enabledPermissionNodes;
-		this.enabledPermissionGroups = enabledPermissionGroups;
-		this.enabledParams = enabledParams;
-		this.priority = priority;
-		this.translateColorCodes = translateColorCodes;
-	}
+    protected String replaceVariables(String target, SimpleAlias plugin, CommandSender sender, String[] params) {
+        if (translateColorCodes) {
+            params = MessageUtils.translateArguments(params);
+        }
 
-	protected final String applyReplacement(String target, CommandSender sender, String[] params) {
-		StringReplacer s = new StringReplacer(new String[] { "<sender_name>" }, new String[] { sender.getName() });
-		if (params.length > 0) {
-			s.addReplacement("<params>", StringUtils.join(params, " "));
-			Matcher m = PARAMS_PATTERN.matcher(target);
-			while (m.find()) {
-				String param = m.group();
-				String modifiers = param.substring(8, param.length() - 1);
-				int seperatorIndex = modifiers.indexOf('-');
-				if (seperatorIndex == -1) {
-					int index = Integer.parseInt(modifiers);
-					if (index < params.length)
-						s.addReplacement("<params@" + index + ">", params[index]);
-				} else {
-					int rangeStart = seperatorIndex == 0 ? 0 : Integer.parseInt(modifiers.substring(0, seperatorIndex));
-					int rangeEnd = seperatorIndex == modifiers.length() - 1 ? params.length : Integer.parseInt(modifiers.substring(seperatorIndex + 1, modifiers.length()));
-					if (rangeStart < rangeEnd && rangeStart < params.length)
-						s.addReplacement(param, StringUtils.join((String[]) Arrays.copyOfRange(params, rangeStart, (rangeEnd >= params.length ? params.length : rangeEnd) + 1), " "));
-				}
-			}
-		}
-		if (sender instanceof Player) {
-			Player p = (Player) sender;
-			s.addReplacement("<world_name>", p.getWorld().getName());
-			s.addReplacement("<sender_uuid>", p.getUniqueId().toString());
-			VaultHook v = SimpleAlias.getVaultHook();
-			if (v.isEnabled()) {
-				if (v.isEconomyEnabled())
-					s.addReplacement("<money_balance>", Double.toString(v.getBalance(p)));
-				if (v.isPermissionEnabled() && v.hasPermissionGroupSupport())
-					s.addReplacement("<group_name>", v.getPrimaryGroup(p));
-			}
-			FactionsHook f = SimpleAlias.getFactionsHook();
-			if (f.isEnabled())
-				s.addReplacement("<faction_name>", f.getFaction(p));
-		}
-		return s.applyReplacement(target).replaceAll(REPLACE_REGEX, "");
-	}
+        Replacer.ReplacerBuilder builder = Replacer.builder().with(DynamicVariable.SENDER_NAME, sender.getName());
 
-	@Override
-	public int compareTo(Action a) {
-		return Integer.compare(priority, a.priority);
-	}
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            builder.with(DynamicVariable.SENDER_UUID, player.getUniqueId())
+                   .with(DynamicVariable.WORLD_NAME, player.getWorld().getName());
 
-	public void setEnabledWorlds(Set<String> enabledWorlds) {
-		this.enabledWorlds = enabledWorlds;
-	}
+            VaultHook vault = plugin.getVaultHook();
+            if (vault.isEnabled()) {
+                if (vault.isEconomyEnabled()) {
+                    builder.with(DynamicVariable.MONEY_BALANCE, vault.formatCurrency(vault.getBalance(player)));
+                }
+                if (vault.isPermissionEnabled() && vault.hasPermissionGroupSupport()) {
+                    builder.with(DynamicVariable.GROUP_NAME, vault.getPrimaryGroup(player));
+                }
+            }
 
-	public void setEnabledPermissionNodes(Set<String> enabledPermissionNodes) {
-		this.enabledPermissionNodes = enabledPermissionNodes;
-	}
+            FactionsHook factions = plugin.getFactionsHook();
+            if (factions.isEnabled()) {
+                builder.with(DynamicVariable.FACTION_NAME, factions.getFaction(player));
+            }
+        }
 
-	public void setEnabledPermissionGroups(Set<String> enabledPermissionGroups) {
-		this.enabledPermissionGroups = enabledPermissionGroups;
-	}
+        if (params.length > 0) {
+            builder.with(DynamicVariable.PARAMS, StringUtils.join(params, " "));
 
-	public void setEnabledParams(Map<Integer, String> enabledParams) {
-		this.enabledParams = enabledParams;
-	}
+            Matcher matcher = DynamicVariable.PARAMS_INDEX.getPattern().matcher(target);
+            while (matcher.find()) {
+                String variable = matcher.group();
+                String range = matcher.group(1);
+                int separatorIndex = range.indexOf('-');
+                if (separatorIndex == -1) {
+                    int index = Integer.parseInt(range);
+                    if (index < params.length) {
+                        builder.with(variable, params[index]);
+                    }
+                    continue;
+                }
 
-	public void setPriority(int priority) {
-		this.priority = priority;
-	}
+                int rangeStart = separatorIndex == 0 ? 0 : Integer.parseInt(range.substring(0, separatorIndex));
+                int rangeEnd = separatorIndex == range.length() - 1
+                               ? params.length - 1
+                               : Integer.parseInt(range.substring(separatorIndex + 1));
+                if (rangeStart >= params.length) {
+                    continue;
+                }
 
-	public void setTranslateColorCodes(boolean translateColorCodes) {
-		this.translateColorCodes = translateColorCodes;
-	}
+                if (rangeStart == rangeEnd) {
+                    builder.with(variable, params[rangeStart]);
+                } else if (rangeStart < rangeEnd) {
+                    String[] includedParams = Arrays.copyOfRange(params, rangeStart, Math.min(rangeEnd, params.length) + 1);
+                    builder.with(variable, StringUtils.join(includedParams, " "));
+                }
+            }
+        }
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
+        String result = builder.build().replaceAll(target);
+        return DynamicVariable.createEmptyReplacement().applyTo(result);
+    }
 
-	public Set<String> getEnabledWorlds() {
-		return enabledWorlds;
-	}
+    @Override
+    public int compareTo(Action other) {
+        return Integer.compare(priority, other.priority);
+    }
 
-	public boolean isEnabled(World w) {
-		return enabledWorlds.isEmpty() || enabledWorlds.contains(w.getName());
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Set<String> getEnabledPermissionNodes() {
-		return enabledPermissionNodes;
-	}
+    public void setEnabledWorlds(Set<String> enabledWorlds) {
+        this.enabledWorlds = enabledWorlds;
+    }
 
-	public Set<String> getEnabledPermissionGroups() {
-		return enabledPermissionGroups;
-	}
+    public void setEnabledPermissionNodes(Set<String> enabledPermissionNodes) {
+        this.enabledPermissionNodes = enabledPermissionNodes;
+    }
 
-	public boolean isEnabled(Player p) {
-		if (!isEnabled(p.getWorld())) {
-			return false;
-		} else {
-			VaultHook v = SimpleAlias.getVaultHook();
-			if (enabledPermissionNodes.size() == 0) {
-				return enabledPermissionGroups.size() == 0 ? true : v.isInAnyGroup(p, enabledPermissionGroups);
-			} else {
-				for (String node : enabledPermissionNodes)
-					if (Permission.hasPermission(p, node))
-						return enabledPermissionGroups.size() == 0 ? true : v.isInAnyGroup(p, enabledPermissionGroups);
-				return false;
-			}
-		}
-	}
+    public void setEnabledPermissionGroups(Set<String> enabledPermissionGroups) {
+        this.enabledPermissionGroups = enabledPermissionGroups;
+    }
 
-	public Map<Integer, String> getEnabledParams() {
-		return enabledParams;
-	}
+    public void setEnabledParams(Map<Integer, String> enabledParams) {
+        this.enabledParams = enabledParams;
+    }
 
-	public boolean isEnabled(String[] params) {
-		for (Entry<Integer, String> e : enabledParams.entrySet()) {
-			int index = e.getKey();
-			if (index >= params.length || !params[index].equalsIgnoreCase(e.getValue()))
-				return false;
-		}
-		return true;
-	}
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 
-	public boolean isEnabled(CommandSender sender, String[] params) {
-		return sender instanceof Player ? isEnabled((Player) sender) && isEnabled(params) : isEnabled(params);
-	}
+    public void setTranslateColorCodes(boolean translateColorCodes) {
+        this.translateColorCodes = translateColorCodes;
+    }
 
-	public int getPriority() {
-		return this.priority;
-	}
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
-	public boolean getTranslateColorCodes() {
-		return this.translateColorCodes;
-	}
+    public Set<String> getEnabledWorlds() {
+        return enabledWorlds;
+    }
 
-	public abstract Type getType();
+    public Set<String> getEnabledPermissionNodes() {
+        return enabledPermissionNodes;
+    }
+
+    public Set<String> getEnabledPermissionGroups() {
+        return enabledPermissionGroups;
+    }
+
+    public Map<Integer, String> getEnabledParams() {
+        return enabledParams;
+    }
+
+    public boolean isEnabled(SimpleAlias plugin, CommandSender sender, String[] params) {
+        for (Entry<Integer, String> entry : enabledParams.entrySet()) {
+            int index = entry.getKey();
+            if (index >= params.length || !params[index].equalsIgnoreCase(entry.getValue())) {
+                return false;
+            }
+        }
+
+        if (!(sender instanceof Player)) {
+            return true;
+        }
+
+        Player player = (Player) sender;
+        if (!enabledWorlds.isEmpty() && !enabledWorlds.contains(player.getWorld().getName())) {
+            return false;
+        }
+
+        boolean hasPermissions = !enabledPermissionNodes.isEmpty();
+        if (hasPermissions && enabledPermissionNodes.stream().anyMatch(player::hasPermission)) {
+            return true;
+        }
+
+        if (enabledPermissionGroups.isEmpty()) {
+            return !hasPermissions;
+        }
+
+        return plugin.getVaultHook().isInAnyGroup(player, enabledPermissionGroups);
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public boolean hasTranslateColorCodes() {
+        return translateColorCodes;
+    }
+
+    public abstract ActionType getType();
 }

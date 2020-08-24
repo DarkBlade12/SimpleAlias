@@ -1,87 +1,103 @@
 package com.darkblade12.simplealias.cooldown;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Logger;
-
+import com.darkblade12.simplealias.SimpleAlias;
+import com.darkblade12.simplealias.plugin.Manager;
+import com.darkblade12.simplealias.plugin.reader.JsonReader;
 import org.bukkit.entity.Player;
 
-import com.darkblade12.simplealias.Settings;
-import com.darkblade12.simplealias.SimpleAlias;
-import com.darkblade12.simplealias.manager.Manager;
-import com.darkblade12.simplealias.nameable.NameableList;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-public final class CooldownManager extends Manager {
-	private static final File DIRECTORY = new File("plugins/SimpleAlias/cooldown lists/");
-	private NameableList<CooldownList> lists;
+public final class CooldownManager extends Manager<SimpleAlias> {
+    private final List<CooldownMap> cooldownMaps;
 
-	@Override
-	public boolean onEnable() {
-		loadLists();
-		return true;
-	}
+    public CooldownManager(SimpleAlias plugin) {
+        super(plugin, new File("plugins/SimpleAlias/cooldowns/"));
+        cooldownMaps = new ArrayList<>();
+    }
 
-	@Override
-	public void onDisable() {}
+    @Override
+    protected void onEnable() {
+        loadMaps();
 
-	private void loadLists() {
-		lists = new NameableList<CooldownList>();
-		Logger l = SimpleAlias.logger();
-		if (DIRECTORY.exists() && DIRECTORY.isDirectory())
-			for (File f : DIRECTORY.listFiles()) {
-				String name = f.getName();
-				int index = name.indexOf(".cooldownlist");
-				if (index != -1)
-					try {
-						lists.add(CooldownList.fromFile(name.substring(0, index)));
-					} catch (Exception e) {
-						l.info("Failed to load the cooldown list of player '" + name + "'. Cause: " + e.getMessage());
-						if(Settings.isDebugEnabled()) {
-							e.printStackTrace();
-						}
-					}
-			}
-		int amount = lists.size();
-		l.info(amount + " cooldown list" + (amount == 1 ? "" : "s") + " loaded.");
-	}
+        int count = cooldownMaps.size();
+        plugin.logInfo("{0} cooldown map{1} loaded.", count, count == 1 ? "" : "s");
+    }
 
-	public void register(Player p, Cooldown c) {
-		CooldownList list = getList(p);
-		list.add(c);
-		list.saveToFile();
-	}
+    @Override
+    protected void onDisable() {
+        unloadMaps();
+        cooldownMaps.clear();
+    }
 
-	public void unregister(Player p, Cooldown c) {
-		CooldownList list = getList(p);
-		if (!list.isEmpty()) {
-			list.remove(c.getName());
-			if (list.isEmpty())
-				list.deleteFile();
-			else
-				list.saveToFile();
-		}
-	}
+    private void loadMaps() {
+        if (!dataDirectory.isDirectory()) {
+            return;
+        }
 
-	public List<CooldownList> getLists() {
-		return Collections.unmodifiableList(lists);
-	}
+        File[] cooldownFiles = dataDirectory.listFiles((dir, name) -> JsonReader.isJson(name));
+        if (cooldownFiles == null) {
+            return;
+        }
 
-	public int getListAmount() {
-		return lists.size();
-	}
+        for (File file : cooldownFiles) {
+            CooldownMap map = CooldownMap.fromFile(plugin, file);
+            if (map == null) {
+                plugin.logWarning("Failed to load the cooldown map {0}.", file.getName());
+                continue;
+            }
 
-	public CooldownList getList(Player p) {
-		String name = p.getName();
-		CooldownList list = lists.get(name);
-		if (list == null) {
-			list = new CooldownList(name);
-			lists.add(list);
-		}
-		return list;
-	}
+            cooldownMaps.add(map);
+        }
+    }
 
-	public Cooldown getCooldown(Player p, String name) {
-		return getList(p).get(name);
-	}
+    private void unloadMaps() {
+        for (int i = 0; i < cooldownMaps.size(); i++) {
+            CooldownMap map = cooldownMaps.get(i);
+            boolean changed = map.removeExpired();
+            if (map.isEmpty()) {
+                map.deleteFile();
+            } else if (changed) {
+                map.saveFile();
+            }
+        }
+    }
+
+    public void register(Player player, String aliasName, Cooldown cooldown) {
+        CooldownMap map = getMap(player);
+        map.put(aliasName, cooldown);
+        map.removeExpired();
+        map.saveFile();
+    }
+
+    public void unregister(Player player, String aliasName) {
+        CooldownMap map = getMap(player);
+        boolean changed = false;
+        if (!map.isEmpty()) {
+            changed = map.remove(aliasName) | map.removeExpired();
+        }
+
+        if (map.isEmpty()) {
+            map.deleteFile();
+        } else if (changed) {
+            map.saveFile();
+        }
+    }
+
+    public CooldownMap getMap(Player player) {
+        UUID playerId = player.getUniqueId();
+        CooldownMap map = cooldownMaps.stream().filter(c -> c.getPlayerId() == playerId).findFirst().orElse(null);
+        if (map == null) {
+            map = new CooldownMap(plugin, playerId);
+            cooldownMaps.add(map);
+        }
+
+        return map;
+    }
+
+    public Cooldown getCooldown(Player player, String aliasName) {
+        return getMap(player).get(aliasName);
+    }
 }

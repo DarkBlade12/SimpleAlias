@@ -1,77 +1,73 @@
 package com.darkblade12.simplealias.command.alias;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-
+import com.darkblade12.simplealias.Permission;
+import com.darkblade12.simplealias.SimpleAlias;
+import com.darkblade12.simplealias.alias.Alias;
+import com.darkblade12.simplealias.alias.AliasException;
+import com.darkblade12.simplealias.alias.AliasManager;
+import com.darkblade12.simplealias.alias.action.Action;
+import com.darkblade12.simplealias.alias.action.CommandAction;
+import com.darkblade12.simplealias.plugin.command.CommandBase;
+import com.darkblade12.simplealias.plugin.settings.InvalidValueException;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 
-import com.darkblade12.simplealias.Settings;
-import com.darkblade12.simplealias.SimpleAlias;
-import com.darkblade12.simplealias.alias.Alias;
-import com.darkblade12.simplealias.alias.AliasManager;
-import com.darkblade12.simplealias.alias.action.Action;
-import com.darkblade12.simplealias.alias.action.Executor;
-import com.darkblade12.simplealias.alias.action.types.CommandAction;
-import com.darkblade12.simplealias.command.CommandDetails;
-import com.darkblade12.simplealias.command.CommandHandler;
-import com.darkblade12.simplealias.command.ICommand;
-import com.darkblade12.simplealias.permission.Permission;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-@CommandDetails(name = "multiple", params = "<name> <command#command...>", description = "Creates a new alias for multiple commands", permission = Permission.MULTIPLE_COMMAND, infiniteParams = true)
-public final class MultipleCommand implements ICommand {
-	@Override
-	public void execute(CommandHandler handler, CommandSender sender, String label, String[] params) {
-		String name = StringUtils.removeStart(params[0], "/");
-		AliasManager manager = SimpleAlias.getAliasManager();
-		if (manager.hasAlias(name)) {
-			sender.sendMessage(SimpleAlias.PREFIX + "§cAn alias with this name already exists!");
-		} else if (!Alias.isValid(name)) {
-			sender.sendMessage(SimpleAlias.PREFIX + "§cThe name of this alias contains illegal characters!");
-		} else {
-			String[] commandsArray = (String[]) Arrays.copyOfRange(params, 1, params.length);
-			List<Action> actions = new ArrayList<Action>();
-			List<String> executionOrder = new ArrayList<String>();
-			int index = 1;
-			for (String command : StringUtils.join(commandsArray, ' ').split("#")) {
-				String finalCommand = StringUtils.removeStart(command, "/");
-				if (finalCommand.split(" ")[0].equalsIgnoreCase(name)) {
-					sender.sendMessage(SimpleAlias.PREFIX + "§cYou can't create an alias which executes itself!");
-					return;
-				}
-				String actionName = "ExecuteCommand" + index;
-				actions.add(new CommandAction("ExecuteCommand" + index, new HashSet<String>(), new HashSet<String>(), new HashSet<String>(), new HashMap<Integer, String>(), 0, false, finalCommand, Executor.SENDER, false));
-				executionOrder.add(actionName);
-				index++;
-			}
-			Alias alias;
-			try {
-				alias = manager.createAlias(name);
-			} catch (Exception e) {
-				sender.sendMessage(SimpleAlias.PREFIX + "§cThe alias creation failed! Cause: " + e.getMessage());
-				if(Settings.isDebugEnabled()) {
-					e.printStackTrace();
-				}
-				return;
-			}
-			List<Action> aliasActions = alias.getActions();
-			aliasActions.clear();
-			aliasActions.addAll(actions);
-			List<String> aliasExecutionOrder = alias.getExecutionOrder();
-			aliasExecutionOrder.clear();
-			aliasExecutionOrder.addAll(executionOrder);
-			try {
-				alias.save();
-				sender.sendMessage(SimpleAlias.PREFIX + "§aThe multiple command alias with the name §6" + name + " §awas successfully created.");
-			} catch (Exception e) {
-				sender.sendMessage(SimpleAlias.PREFIX + "§cThe alias creation failed! Cause: " + e.getMessage());
-				if(Settings.isDebugEnabled()) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+public final class MultipleCommand extends CommandBase<SimpleAlias> {
+    public MultipleCommand() {
+        super("multiple", Permission.COMMAND_MULTIPLE, "<name>", "<command#command...>");
+    }
+
+    @Override
+    public void execute(SimpleAlias plugin, CommandSender sender, String label, String[] args) {
+        String name = StringUtils.removeStart(args[0], "/");
+        AliasManager manager = plugin.getAliasManager();
+        if (manager.hasAlias(name)) {
+            plugin.sendMessage(sender, "alias.alreadyExists", name);
+            return;
+        } else if (!Alias.isValid(name)) {
+            plugin.sendMessage(sender, "alias.invalidName", name);
+            return;
+        }
+
+        String[] commandParts = Arrays.copyOfRange(args, 1, args.length);
+        String[] commands = StringUtils.join(commandParts, ' ').split("#");
+        List<Action> actions = new ArrayList<>();
+        List<String> executionOrder = new ArrayList<>();
+
+        for (int i = 0; i < commands.length; i++) {
+            String finalCommand = StringUtils.removeStart(commands[i], "/");
+            if (finalCommand.split(" ")[0].equalsIgnoreCase(name)) {
+                plugin.sendMessage(sender, "alias.noSelfExecution");
+                return;
+            }
+
+            String actionName = "ExecuteCommand" + (i + 1);
+            actions.add(new CommandAction(actionName, finalCommand));
+            executionOrder.add(actionName);
+        }
+
+        Alias alias;
+        try {
+            alias = manager.createAlias(name);
+        } catch (AliasException | InvalidValueException e) {
+            plugin.sendMessage(sender, "alias.creationFailed", name, e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+
+        alias.setActions(actions);
+        alias.setExecutionOrder(executionOrder);
+
+        try {
+            alias.saveSettings();
+            plugin.sendMessage(sender, "alias.creationSucceeded", name);
+        } catch (AliasException e) {
+            plugin.sendMessage(sender, "alias.creationFailed", name, e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
