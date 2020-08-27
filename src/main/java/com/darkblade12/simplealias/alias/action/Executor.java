@@ -9,12 +9,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public enum Executor {
-    SENDER("Sender") {
+    SENDER {
         @Override
         public void dispatchCommand(SimpleAlias plugin, CommandSender sender, String command, boolean grantPermission, boolean silent) {
             if (!(sender instanceof Player)) {
@@ -27,39 +28,47 @@ public enum Executor {
                 plugin.getAliasManager().addUncheckedPlayer(player);
             }
 
+            if (grantPermission || silent) {
+                try {
+
+                    player = (Player) Proxy.newProxyInstance(player.getClass().getClassLoader(), new Class<?>[] { Player.class },
+                                                             new PlayerProxy(player, grantPermission, silent));
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+
             PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(player, "/" + command);
             Bukkit.getPluginManager().callEvent(event);
             if (!event.isCancelled()) {
-                if (grantPermission || silent) {
-                    sender = new CommandSenderProxy(sender, grantPermission, silent);
-                }
-                Bukkit.dispatchCommand(sender, StringUtils.removeStart(event.getMessage(), "/"));
+                Bukkit.dispatchCommand(player, StringUtils.removeStart(event.getMessage(), "/"));
             }
         }
     },
-    CONSOLE("Console") {
+    CONSOLE {
         @Override
         public void dispatchCommand(SimpleAlias plugin, CommandSender sender, String command, boolean grantPermission, boolean silent) {
-            if (!(sender instanceof ConsoleCommandSender)) {
-                sender = Bukkit.getConsoleSender();
-            } else if (silent) {
-                sender = new CommandSenderProxy(sender, false, true);
+            ConsoleCommandSender console;
+            if (sender instanceof ConsoleCommandSender) {
+                console = (ConsoleCommandSender) sender;
+            } else {
+                console = Bukkit.getConsoleSender();
             }
 
-            ServerCommandEvent event = new ServerCommandEvent(sender, command);
+            if (silent) {
+                console = new ConsoleProxy(console, true);
+            }
+
+            ServerCommandEvent event = new ServerCommandEvent(console, command);
             Bukkit.getPluginManager().callEvent(event);
             if (!event.isCancelled()) {
-                Bukkit.dispatchCommand(sender, event.getCommand());
+                Bukkit.dispatchCommand(console, event.getCommand());
             }
         }
     };
 
     private static final Map<String, Executor> BY_NAME = new HashMap<>();
-    private final String name;
-
-    Executor(String name) {
-        this.name = name;
-    }
 
     static {
         for (Executor executor : values()) {
@@ -79,6 +88,6 @@ public enum Executor {
 
     @Override
     public String toString() {
-        return name;
+        return name().toLowerCase();
     }
 }
