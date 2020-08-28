@@ -75,6 +75,7 @@ public final class ModifyCommand extends CommandBase<SimpleAlias> {
                 }
 
                 alias.setDescription(value);
+                break;
             case EXECUTABLE_AS_CONSOLE:
                 boolean executableAsConsole;
                 try {

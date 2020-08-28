@@ -21,7 +21,7 @@ public final class CreateActionCommand extends CommandBase<SimpleAlias> {
     private static final String DEFAULT_MESSAGE = "This action has not been setup yet";
 
     public CreateActionCommand() {
-        super("createaction", false, Permission.COMMAND_CREATE_ACTION, "<name>", "<action_name>", "<type>", "[value]");
+        super("createaction", Permission.COMMAND_CREATE_ACTION, false, "<name>", "<action_name>", "<type>", "[value]");
     }
 
     @Override
