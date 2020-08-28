@@ -3,14 +3,15 @@ package com.darkblade12.simplealias.alias;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
-final class AliasCommand extends Command {
+public final class AliasCommand extends Command {
     private static final String FALLBACK_PREFIX = "alias";
     private static Field commandMapField;
     private static Field knownCommandsField;
@@ -31,8 +32,7 @@ final class AliasCommand extends Command {
     }
 
     public AliasCommand(Alias alias) {
-        super(alias.getName(), alias.getDescription(), alias.isUsageCheckEnabled() ? alias.getUsageCheckMessage() : "No usage message set",
-              new ArrayList<>());
+        super(alias.getName(), alias.getDescription(), alias.getUsageCheckMessage(), Collections.emptyList());
         this.alias = alias;
     }
 
@@ -41,6 +41,26 @@ final class AliasCommand extends Command {
             syncCommandsMethod.invoke(Bukkit.getServer());
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static boolean isVanillaCommand(String commandLine) {
+        String commandName = commandLine.split(" ")[0].toLowerCase();
+
+        try {
+            SimpleCommandMap commandMap = (SimpleCommandMap) commandMapField.get(Bukkit.getServer());
+            Command command = commandMap.getCommand(commandName);
+            if (command == null || command instanceof PluginCommand) {
+                return false;
+            } else if (commandName.startsWith("minecraft:")) {
+                return true;
+            }
+
+            Command fallbackCommand = commandMap.getCommand("minecraft:" + commandName);
+            return fallbackCommand != null && command == fallbackCommand;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -90,14 +110,5 @@ final class AliasCommand extends Command {
             e.printStackTrace();
             return false;
         }
-    }
-
-    @Override
-    public String getPermissionMessage() {
-        return alias.getPermissionMessage();
-    }
-
-    public Alias getAlias() {
-        return this.alias;
     }
 }
