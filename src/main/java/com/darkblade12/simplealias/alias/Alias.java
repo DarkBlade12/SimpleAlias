@@ -97,6 +97,8 @@ public final class Alias implements Nameable {
         loadSettings();
 
         command = new AliasCommand(this);
+        command.setPermissionMessage(permissionMessage);
+
         registerCommand();
     }
 
@@ -359,6 +361,11 @@ public final class Alias implements Nameable {
         }
 
         loadSettings();
+
+        command.setDescription(description);
+        command.setUsage(usageCheckMessage);
+        command.setPermissionMessage(permissionMessage);
+
         registerCommand();
     }
 
@@ -501,6 +508,20 @@ public final class Alias implements Nameable {
             Bukkit.getLogger().info(replacer.replaceAll(loggingMessage));
         }
 
+        if (!testPermission(sender)) {
+            if (!MessageUtils.isBlank(permissionMessage)) {
+                sender.sendMessage(permissionMessage);
+            }
+            return;
+        }
+
+        if (usageCheckEnabled && (params.length < usageCheckMinParams || usageCheckMaxParams >= 0 && params.length > usageCheckMaxParams)) {
+            if (!MessageUtils.isBlank(usageCheckMessage)) {
+                sender.sendMessage(usageCheckMessage);
+            }
+            return;
+        }
+
         if (!(sender instanceof Player)) {
             executeActions(sender, params);
             return;
@@ -510,20 +531,6 @@ public final class Alias implements Nameable {
         if (!isEnabled(player.getWorld()) && !Permission.BYPASS_ENABLED_WORLDS.test(player)) {
             if (!MessageUtils.isBlank(worldMessage)) {
                 player.sendMessage(worldMessage);
-            }
-            return;
-        }
-
-        if (!testPermission(player)) {
-            if (!MessageUtils.isBlank(permissionMessage)) {
-                player.sendMessage(permissionMessage);
-            }
-            return;
-        }
-
-        if (usageCheckEnabled && (params.length < usageCheckMinParams || usageCheckMaxParams >= 0 && params.length > usageCheckMaxParams)) {
-            if (!MessageUtils.isBlank(usageCheckMessage)) {
-                player.sendMessage(usageCheckMessage);
             }
             return;
         }
@@ -667,6 +674,7 @@ public final class Alias implements Nameable {
 
     public void setDescription(String description) {
         this.description = description;
+        command.setDescription(description);
     }
 
     public void setExecutableAsConsole(boolean executableAsConsole) {
@@ -747,6 +755,7 @@ public final class Alias implements Nameable {
 
     public void setUsageCheckMessage(String usageCheckMessage) {
         this.usageCheckMessage = usageCheckMessage;
+        command.setUsage(usageCheckMessage);
     }
 
     public void setPermissionEnabled(boolean permissionEnabled) {
@@ -763,6 +772,7 @@ public final class Alias implements Nameable {
 
     public void setPermissionMessage(String permissionMessage) {
         this.permissionMessage = permissionMessage;
+        command.setPermissionMessage(permissionMessage);
     }
 
     public void setDelayEnabled(boolean delayEnabled) {
