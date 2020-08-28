@@ -49,7 +49,7 @@ final class HelpIndex<T extends PluginBase> {
     private List<CommandBase<T>> getVisibleCommands(CommandSender sender) {
         List<CommandBase<T>> visible = new ArrayList<>();
         for (CommandBase<T> command : handler) {
-            if (command.checkPermission(sender)) {
+            if (command.testPermission(sender)) {
                 visible.add(command);
             }
         }

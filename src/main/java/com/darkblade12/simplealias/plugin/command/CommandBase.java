@@ -67,7 +67,7 @@ public abstract class CommandBase<T extends PluginBase> {
         return args.length >= minArgs && (maxArgs == -1 || args.length <= maxArgs);
     }
 
-    public boolean checkPermission(CommandSender sender) {
+    public boolean testPermission(CommandSender sender) {
         return permission.test(sender);
     }
 

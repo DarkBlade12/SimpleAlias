@@ -8,8 +8,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,50 +52,48 @@ public abstract class CommandHandler<T extends PluginBase> implements CommandExe
             return true;
         }
 
-        String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
+        String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
         if (!command.isExecutableAsConsole() && !(sender instanceof Player)) {
             plugin.sendMessage(sender, "command.noConsole");
             return true;
         }
 
-        if (!command.checkPermission(sender)) {
+        if (!command.testPermission(sender)) {
             plugin.sendMessage(sender, "command.noPermission");
             return true;
         }
 
-        if (!command.isValid(newArgs)) {
+        if (!command.isValid(subArgs)) {
             displayInvalidUsage(sender, command, label);
             return true;
         }
 
-        command.execute(plugin, sender, label, newArgs);
+        command.execute(plugin, sender, label, subArgs);
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command bukkitCommand, String alias, String[] args) {
-        List<String> suggestions = new ArrayList<>();
         if (args.length < 1) {
-            return suggestions;
+            return Collections.emptyList();
         }
 
+        List<String> suggestions;
         if (args.length == 1) {
-            for (CommandBase<T> command : commands.values()) {
-                suggestions.add(command.getName());
-            }
+            suggestions = commands.values().stream().filter(c -> c.testPermission(sender)).map(CommandBase::getName)
+                                  .collect(Collectors.toList());
         } else {
             CommandBase<T> command = getCommand(args[0]);
             if (command == null) {
                 return null;
             }
 
-            String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
-            List<String> cmdSuggestions = command.getSuggestions(plugin, sender, newArgs);
-            if (cmdSuggestions == null) {
-                return suggestions;
-            }
+            String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
+            suggestions = command.getSuggestions(plugin, sender, subArgs);
+        }
 
-            suggestions = cmdSuggestions;
+        if (suggestions == null || suggestions.isEmpty()) {
+            return Collections.emptyList();
         }
 
         String filter = args[args.length - 1].toLowerCase();
