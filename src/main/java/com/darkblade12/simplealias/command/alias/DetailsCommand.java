@@ -46,7 +46,7 @@ public final class DetailsCommand extends CommandBase<SimpleAlias> {
         StringBuilder builder = new StringBuilder();
         builder.append(getLine(plugin, 1, AliasSetting.DESCRIPTION, alias.getDescription()));
         builder.append(getLine(plugin, 1, AliasSetting.EXECUTABLE_AS_CONSOLE, alias.isExecutableAsConsole()));
-        builder.append(getLine(plugin, 1, AliasSetting.WORLD_MESSAGE, alias.getWorldMessage()));
+        builder.append(getLine(plugin, 1, AliasSetting.CONSOLE_MESSAGE, alias.getConsoleMessage()));
         builder.append(getLine(plugin, 1, AliasSetting.ENABLED_WORLDS, alias.getEnabledWorlds()));
         builder.append(getLine(plugin, 1, AliasSetting.WORLD_MESSAGE, alias.getWorldMessage()));
         builder.append(getLine(plugin, 1, AliasSetting.EXECUTION_ORDER, alias.getExecutionOrder()));
@@ -67,6 +67,7 @@ public final class DetailsCommand extends CommandBase<SimpleAlias> {
                 builder.append(getLine(plugin, 3, ActionSetting.COMMAND, commandAction.getCommand()));
                 builder.append(getLine(plugin, 3, ActionSetting.EXECUTOR, commandAction.getExecutor()));
                 builder.append(getLine(plugin, 3, ActionSetting.GRANT_PERMISSION, commandAction.hasGrantPermission()));
+                builder.append(getLine(plugin, 3, ActionSetting.SILENT, commandAction.isSilent()));
             } else if (action instanceof MessageAction) {
                 MessageAction messageAction = (MessageAction) action;
                 builder.append(getLine(plugin, 3, ActionSetting.MESSAGE, messageAction.getMessage()));
