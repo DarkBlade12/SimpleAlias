@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 public final class MessageCommand extends CommandBase<SimpleAlias> {
     public MessageCommand() {
-        super("message", Permission.COMMAND_MESSAGE, "<name>", "<message>");
+        super("message", Permission.COMMAND_MESSAGE, false, "<name>", "<message>");
     }
 
     @Override

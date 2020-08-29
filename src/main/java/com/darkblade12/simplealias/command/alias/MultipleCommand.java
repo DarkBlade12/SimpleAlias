@@ -18,7 +18,7 @@ import java.util.List;
 
 public final class MultipleCommand extends CommandBase<SimpleAlias> {
     public MultipleCommand() {
-        super("multiple", Permission.COMMAND_MULTIPLE, "<name>", "<command#command...>");
+        super("multiple", Permission.COMMAND_MULTIPLE, false, "<name>", "<command#command...>");
     }
 
     @Override
