@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -121,7 +122,12 @@ public final class DetailsCommand extends CommandBase<SimpleAlias> {
     }
 
     private String getLine(SimpleAlias plugin, int indentationLevel, Enum<?> key, Collection<?> value) {
-        return getLine(plugin, indentationLevel, key, value.isEmpty() ? null : StringUtils.join(value, ", "));
+        return getLine(plugin, indentationLevel, key, value.isEmpty() ? "[]" : StringUtils.join(value, ", "));
+    }
+
+    private String getLine(SimpleAlias plugin, int indentationLevel, Enum<?> key, Map<?, ?> value) {
+        List<String> values = value.entrySet().stream().map(e -> e.getValue() + "@" + e.getKey()).collect(Collectors.toList());
+        return getLine(plugin, indentationLevel, key, values);
     }
 
     private String getLine(SimpleAlias plugin, int indentationLevel, Enum<?> key, Enum<?> value) {
