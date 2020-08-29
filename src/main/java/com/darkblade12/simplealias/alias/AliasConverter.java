@@ -1,8 +1,6 @@
 package com.darkblade12.simplealias.alias;
 
 import com.darkblade12.simplealias.SimpleAlias;
-import com.darkblade12.simplealias.alias.AliasSection;
-import com.darkblade12.simplealias.alias.AliasSetting;
 import com.darkblade12.simplealias.alias.action.ActionSetting;
 import com.darkblade12.simplealias.plugin.reader.ConfigurationReader;
 import com.darkblade12.simplealias.replacer.Replacer;
