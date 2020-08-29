@@ -657,6 +657,10 @@ public final class Alias implements Nameable {
         }
 
         this.name = name;
+
+        if (plugin.getSettings().hasCommandSync()) {
+            AliasCommand.syncCommands();
+        }
     }
 
     public void renameAction(Action action, String newName) {
