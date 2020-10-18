@@ -158,7 +158,7 @@ public final class Alias implements Nameable {
         if (usageCheckMinParams < 0) {
             throw new InvalidValueException(AliasSetting.USAGE_CHECK_MIN_PARAMS.getPath(), usageCheckMinParams, "cannot be lower than 1");
         }
-        usageCheckMinParams = config.getInt(AliasSetting.USAGE_CHECK_MAX_PARAMS.getPath());
+        usageCheckMaxParams = config.getInt(AliasSetting.USAGE_CHECK_MAX_PARAMS.getPath());
         if (usageCheckMaxParams >= 0 && usageCheckMaxParams < usageCheckMinParams) {
             throw new InvalidValueException(AliasSetting.USAGE_CHECK_MAX_PARAMS, usageCheckMinParams,
                                             "cannot be lower than value of " + AliasSetting.USAGE_CHECK_MIN_PARAMS);
